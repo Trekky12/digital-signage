@@ -1,5 +1,9 @@
 'use strict';
 
+if (typeof(PhusionPassenger) !== 'undefined') {
+    PhusionPassenger.configure({ autoInstall: false });
+}
+
 const express = require('express'),
     basicAuth = require('express-basic-auth'),
     bodyParser = require('body-parser'),
@@ -129,9 +133,15 @@ wss.on('connection', function connection(ws, req){
   });
 });
 
-app.listen(8080, function(){
+if (typeof(PhusionPassenger) !== 'undefined') {
+    app.listen('passenger', serverStart);
+} else {
+    app.listen(8080, serverStart);
+}
+
+function serverStart(){
     console.log('Magic happens at http://localhost:8080/! We are all now doomed!');
     
     db.sync();
     //db.sync({force: true});
-});
+}
