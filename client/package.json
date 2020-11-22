@@ -1,0 +1,40 @@
+{
+  "name": "InfoscreenClient",
+  "version": "1.0.0",
+  "description": "Infoscreen Client",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev:pack": "electron-builder --dir",
+    "dev:dist": "electron-builder",
+    "dev:build:rpi": "electron-builder --armv7l --linux",
+    "prod": "npm install --only=prod"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Tobias Haegenlaeuer",
+    "email": "infoscreen@haegi.org"
+  },
+  "homepage": "https://www.haegi.org",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^10.1.5"
+  },
+  "devDependencies": {
+    "electron-builder": "^22.9.1"
+  },
+  "build": {
+    "appId": "infoscreen.client",
+    "win": {
+      "target": "NSIS"
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ]
+    },
+    "extraFiles": [
+      "config.json"
+    ]
+  }
+}

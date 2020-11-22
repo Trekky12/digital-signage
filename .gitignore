@@ -105,3 +105,5 @@ dist
 
 server/config.js
 server/database.sqlite
+
+client/config.json
