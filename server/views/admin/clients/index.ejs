@@ -15,8 +15,8 @@
         <thead>
           <tr>
             <th>Hostname</th>
-            <th>Online</th>
-            <th>IP</th>
+            <th># Clients</th>
+            <th>Last IP</th>
             <th></th>
           </tr>
         </thead>
@@ -24,7 +24,7 @@
           <% clients.forEach(function(client) { %>
             <tr>
               <td><%= client.hostname %></td>
-              <td><%= client.isAvailable ? 'x' : '' %></td>
+              <td><%= client.clientCount > 0 ? client.clientCount : '' %></td>
               <td><%= client.ip %></td>
               <td>
                 <div class="form-group row">

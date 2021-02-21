@@ -18,7 +18,15 @@ module.exports = function (wss) {
         let clients = [];
         savedClients.forEach(function (client) {
             let client2 = client.get({ plain: true });
-            client2.isAvailable = wss_clients.includes(client.id);
+            
+            client2.clientCount = wss_clients.filter(function (item) {
+                if (item === client.id) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).length;
+            
             clients.push(client2);
         });
 
