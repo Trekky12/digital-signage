@@ -42,10 +42,10 @@
 			document.getElementById("content").src = slide.url;
 			timeoutIndx = setTimeout(showSlides, slide.duration * 1000);
 		}
-    
-		function connect() {
 
-			var ws = new WebSocket("ws://" + server + ":" + port + "?type=client&hostname=" + hostname);
+		function connect(initial) {
+
+			var ws = new WebSocket("ws://" + server + ":" + port + "?type=client&hostname=" + hostname + "&initial=" + initial);
 			
 			ws.onopen = function () {
 				document.getElementById("message").innerText = "";
@@ -76,7 +76,7 @@
 				console.log('Socket is closed. Reconnect will be attempted in 10 seconds.', e.reason);
 				document.getElementById("message").innerText = "Offline";
 				setTimeout(function () {
-					connect();
+					connect(false);
 				}, 10000);
 			};
 
@@ -86,7 +86,7 @@
 			};
 		}
 
-		connect();
+		connect(true);
 	</script>
 </body>
 

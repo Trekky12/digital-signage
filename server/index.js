@@ -21,6 +21,7 @@ wss.on('connection', function connection(ws, req) {
     const parameters = url.parse(req.url, true);
     const hostname = parameters.query.hostname;
     const type = parameters.query.type;
+    const initial = (parameters.query.initial == 'true');
 
     const ip = req.socket.remoteAddress;
 
@@ -39,9 +40,9 @@ wss.on('connection', function connection(ws, req) {
                 client.ip = ip;
                 client.save();
 
-                if (client.slideshowId !== null) {
+                // send saved slideshow
+                if (initial && client.slideshowId !== null) {
                     let slideshow = await Slideshow.findByPk(client.slideshowId, { include: ["slides"] });
-                    // send last url
                     ws.send(JSON.stringify({ "type": "send", "slideshow": slideshow }));
                 }
             }
@@ -50,7 +51,7 @@ wss.on('connection', function connection(ws, req) {
     }
 
     ws.on('message', message => {
-        console.log(`Received message => ${message}`);
+        console.log(`Server received message => ${message}`);
         let data = JSON.parse(message);
         console.log(message);
     });
