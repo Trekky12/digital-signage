@@ -6,9 +6,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Client</title>
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+
+	<style>
+		#message {
+			position: absolute;
+			right: 20px;
+			bottom: 0;
+		}
+	</style>
 </head>
 
 <body style="overflow:hidden; margin:0; padding:0;">
+	<div id="message"></div>
 	<iframe src="" id="content" style="width:100vw; height:100vh; border:none"></iframe>
 	<script type="text/javascript">
 		const queryString = window.location.search;
@@ -17,42 +26,9 @@
 		const port = urlParams.has("port") ? urlParams.get('port') : "3001";
 		const hostname = urlParams.has("hostname") ? urlParams.get('hostname') : "default";
 
-		let current_url = "";
-
-
 		let slides = [];
 		let slideIndex = 0;
 		let timeoutIndx;
-
-		var ws = new WebSocket("ws://" + server + ":" + port + "?type=client&hostname=" + hostname);
-
-		ws.onopen = function () {
-			ws.send(JSON.stringify({ "type": "client", "msg": hostname }));
-		};
-
-		ws.onmessage = function (evt) {
-			var received_msg = evt.data;
-			var jsonObject = JSON.parse(evt.data);
-
-			let type = jsonObject.type;
-			if (type == "send") {
-
-				if(typeof(timeoutIndx) !== 'undefined'){
-					clearInterval(timeoutIndx);
-				}
-
-				slides = jsonObject.slideshow.slides;
-				slideIndex = 0;
-				showSlides();
-			}
-			if (type == "get") {
-				ws.send(JSON.stringify({ "type": "get", "msg": document.getElementById("content").src }));
-			}
-		};
-
-		ws.onclose = function () {
-			console.log("Connection is closed...");
-		};
 
 		function showSlides() {
 			slideIndex++;
@@ -66,6 +42,51 @@
 			document.getElementById("content").src = slide.url;
 			timeoutIndx = setTimeout(showSlides, slide.duration * 1000);
 		}
+    
+		function connect() {
+
+			var ws = new WebSocket("ws://" + server + ":" + port + "?type=client&hostname=" + hostname);
+			
+			ws.onopen = function () {
+				document.getElementById("message").innerText = "";
+			};
+
+			ws.onmessage = function (evt) {
+				var received_msg = evt.data;
+				var jsonObject = JSON.parse(evt.data);
+				let type = jsonObject.type;
+				
+				if (type == "send") {
+
+					if (typeof (timeoutIndx) !== 'undefined') {
+						clearInterval(timeoutIndx);
+					}
+
+					slides = jsonObject.slideshow.slides;
+					slideIndex = 0;
+					showSlides();
+				}
+
+				if (type == "get") {
+					ws.send(JSON.stringify({ "type": "get", "msg": document.getElementById("content").src }));
+				}
+			};
+
+			ws.onclose = function (e) {
+				console.log('Socket is closed. Reconnect will be attempted in 10 seconds.', e.reason);
+				document.getElementById("message").innerText = "Offline";
+				setTimeout(function () {
+					connect();
+				}, 10000);
+			};
+
+			ws.onerror = function (err) {
+				console.error('Socket encountered error: ', err.message, 'Closing socket');
+				ws.close();
+			};
+		}
+
+		connect();
 	</script>
 </body>
 
