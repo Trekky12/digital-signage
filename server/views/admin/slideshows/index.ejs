@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/header'); %>
+
+    <title>Slideshows</title>
+  </head>
+  <body>
+    <%- include('../partials/navigation', {active:'slideshows'}); %>
+
+    <main role="main" class="container">
+      <h1>Slideshows</h1>
+      <table id="clients" class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% slideshows.forEach(function(slideshow) { %>
+            <tr>
+              <td><%= slideshow.id %></td>
+              <td><%= slideshow.name %></td>
+              <td><a href="/admin/slideshows/edit/<%= slideshow.id %>">Edit</a></td>
+              <td><a href="/admin/slideshows/delete/<%= slideshow.id %>">Delete</a></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
+    <div class="d-flex flex-row-reverse">
+      <a href="/admin/slideshows/create"><button type="button" class="btn btn-primary">Create</button></a>
+    </div>
+    </main>
+    <%- include('../partials/footer'); %>
+  </body>
+</html>

@@ -2,8 +2,7 @@
 
 var Sequelize = require('sequelize');
 
-var config = require('../config'),
-    db = require('../services/database');
+var db = require('../services/database');
 
 var modelDefinition = {
 	id: {
@@ -27,5 +26,8 @@ var modelDefinition = {
 };
 
 var ClientModel = db.define('client', modelDefinition);
+
+var SlideshowModel = require('./slideshow.model');
+ClientModel.belongsTo(SlideshowModel);
 
 module.exports = ClientModel;

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../partials/header'); %>
+    <title>Admin</title>
+</head>
+
+<body>
+  <%- include('../partials/navigation', {active:'clients'}); %>
+
+    <main role="main" class="container">
+      <h1>Clients</h1>
+      <table id="clients" class="hidden table">
+        <thead>
+          <tr>
+            <th>Hostname</th>
+            <th>Online</th>
+            <th>IP</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% clients.forEach(function(client) { %>
+            <tr>
+              <td><%= client.hostname %></td>
+              <td><%= client.isAvailable ? 'x' : '' %></td>
+              <td><%= client.ip %></td>
+              <td>
+                <div class="form-group row">
+                  <select class="form-control col-md-9 slideshow-select">
+                    <% slideshows.forEach(function(slideshow) { %>
+                      <option value="<%= slideshow.id %>" <% if(client.slideshowId == slideshow.id){ %>selected="selected"<% } %>><%= slideshow.name %></option>
+                      <% }); %>
+                  </select>
+                  <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send" data-client="<%= client.id %>">send</button>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+        </tbody>
+      </table>
+
+    </main>
+    <%- include('../partials/footer'); %>
+      <script src="admin.js"></script>
+</body>
+
+</html>
