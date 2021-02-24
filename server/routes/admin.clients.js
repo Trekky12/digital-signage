@@ -18,7 +18,7 @@ module.exports = function (wss) {
         let clients = [];
         savedClients.forEach(function (client) {
             let client2 = client.get({ plain: true });
-            
+
             client2.clientCount = wss_clients.filter(function (item) {
                 if (item === client.id) {
                     return true;
@@ -26,7 +26,7 @@ module.exports = function (wss) {
                     return false;
                 }
             }).length;
-            
+
             clients.push(client2);
         });
 
@@ -36,23 +36,21 @@ module.exports = function (wss) {
     });
 
 
-    router.post('/send', async function (req, res) {
+    router.post('/sendURL', async function (req, res) {
         let client_id = req.body.client;
         let slideshow_id = req.body.slideshow;
 
         let msg = "Error: Client not available!";
 
         let slideshow = await Slideshow.findByPk(slideshow_id, { include: ["slides"] });
-        
+
         if (slideshow === null) {
             msg = "Slideshow not found!";
         } else {
             wss.clients.forEach(function (client) {
                 if (client.id == client_id) {
-                    console.log("test");
                     if (client.readyState === WebSocket.OPEN) {
-                        let cmd = { "type": "send", "slideshow": slideshow };
-                        client.send(JSON.stringify(cmd));
+                        client.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
                         msg = "success";
                     } else {
                         msg = 'Error Client not connected';
@@ -69,5 +67,26 @@ module.exports = function (wss) {
 
         return res.json(msg)
     });
+
+    router.post('/getURL', async function (req, res) {
+        let client_id = req.body.client;
+        let admin_id = req.body.admin;
+
+        let msg = "Error: Client not available!";
+
+        wss.clients.forEach(function (client) {
+            if (client.id == client_id) {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ "type": "get_url", "admin": admin_id }));
+                    msg = "success";
+                } else {
+                    msg = 'Error Client not connected';
+                }
+            }
+        });
+
+        return res.json(msg)
+    });
+
     return router;
 };

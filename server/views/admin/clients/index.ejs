@@ -18,6 +18,7 @@
             <th># Clients</th>
             <th>Last IP</th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -34,6 +35,11 @@
                       <% }); %>
                   </select>
                   <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send" data-client="<%= client.id %>">send</button>
+                </div>
+              </td>
+              <td>
+                <div class="form-group row">
+                  <button type="button" class="btn btn-secondary offset-md-1 col-md-11 btn-get" data-client="<%= client.id %>">get</button>
                 </div>
               </td>
             </tr>

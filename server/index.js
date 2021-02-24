@@ -8,7 +8,8 @@ const express = require('express'),
     bodyParser = require('body-parser'),
     WebSocket = require('ws'),
     url = require('url'),
-    path = require('path');
+    path = require('path'),
+    crypto = require("crypto");
 
 const Client = require('./models/client.model');
 const Slideshow = require('./models/slideshow.model');
@@ -43,17 +44,32 @@ wss.on('connection', function connection(ws, req) {
                 // send saved slideshow
                 if (initial && client.slideshowId !== null) {
                     let slideshow = await Slideshow.findByPk(client.slideshowId, { include: ["slides"] });
-                    ws.send(JSON.stringify({ "type": "send", "slideshow": slideshow }));
+                    ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
                 }
             }
             ws.id = client.id;
         });
     }
+    if (type == "admin") {
+        // create an id for the admin to send data to
+        ws.id = crypto.randomBytes(16).toString("hex");
+        ws.send(JSON.stringify({ "type": "id", "id": ws.id }));
+    }
 
     ws.on('message', message => {
         console.log(`Server received message => ${message}`);
         let data = JSON.parse(message);
-        console.log(message);
+
+        if (data.type == "get_url_result") {
+            // send the retrieved url to the admin which requested it
+            wss.clients.forEach(function (client) {
+                if (client.id == data.admin) {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ "type": "get_url_result", "url": data.url }));
+                    }
+                }
+            });
+        }
     });
 });
 

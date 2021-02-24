@@ -56,7 +56,7 @@
 				var jsonObject = JSON.parse(evt.data);
 				let type = jsonObject.type;
 				
-				if (type == "send") {
+				if (type == "send_url") {
 
 					if (typeof (timeoutIndx) !== 'undefined') {
 						clearInterval(timeoutIndx);
@@ -67,8 +67,8 @@
 					showSlides();
 				}
 
-				if (type == "get") {
-					ws.send(JSON.stringify({ "type": "get", "msg": document.getElementById("content").src }));
+				if (type == "get_url") {
+					ws.send(JSON.stringify({ "type": "get_url_result", "url": document.getElementById("content").src, "admin": jsonObject.admin }));
 				}
 			};
 
