@@ -28,7 +28,9 @@ wss.on('connection', function connection(ws, req) {
 
     if (type == "client") {
         Client.findOrCreate({
-            where: { hostname: hostname },
+            where: { 
+                hostname: hostname
+            },
             defaults: {
                 ip: ip,
                 url: '#'
@@ -47,12 +49,19 @@ wss.on('connection', function connection(ws, req) {
                     ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
                 }
             }
-            ws.id = client.id;
+            ws.info = {
+                id : client.id,
+                ip : ip
+            }
         });
     }
     if (type == "admin") {
         // create an id for the admin to send data to
-        ws.id = crypto.randomBytes(16).toString("hex");
+        ws.info = {
+            id : crypto.randomBytes(16).toString("hex"),
+            ip : ip
+        }
+        
         ws.send(JSON.stringify({ "type": "id", "id": ws.id }));
     }
 

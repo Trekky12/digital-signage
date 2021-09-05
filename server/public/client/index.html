@@ -26,6 +26,8 @@
 		const port = urlParams.has("port") ? urlParams.get('port') : "3001";
 		const hostname = urlParams.has("hostname") ? urlParams.get('hostname') : "default";
 
+		let current_url = "";
+
 		let slides = [];
 		let slideIndex = 0;
 		let timeoutIndx;

@@ -15,9 +15,7 @@
         <thead>
           <tr>
             <th>Hostname</th>
-            <th># Clients</th>
-            <th>Last IP</th>
-            <th></th>
+            <th>Clients/IP</th>
             <th></th>
           </tr>
         </thead>
@@ -25,21 +23,19 @@
           <% clients.forEach(function(client) { %>
             <tr>
               <td><%= client.hostname %></td>
-              <td><%= client.clientCount > 0 ? client.clientCount : '' %></td>
-              <td><%= client.ip %></td>
+              <td>
+                <% client.connectedClients.forEach(function(ws_client) { %>  
+                <%= ws_client.ip %><br/>
+                <% }); %>
               <td>
                 <div class="form-group row">
-                  <select class="form-control col-md-9 slideshow-select">
+                  <select class="form-control col-md-6 slideshow-select">
                     <% slideshows.forEach(function(slideshow) { %>
                       <option value="<%= slideshow.id %>" <% if(client.slideshowId == slideshow.id){ %>selected="selected"<% } %>><%= slideshow.name %></option>
                       <% }); %>
                   </select>
-                  <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send" data-client="<%= client.id %>">send</button>
-                </div>
-              </td>
-              <td>
-                <div class="form-group row">
-                  <button type="button" class="btn btn-secondary offset-md-1 col-md-11 btn-get" data-client="<%= client.id %>">get</button>
+                  <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send" data-client="<%= client.id %>">Send Slideshow</button>
+                  <button type="button" class="btn btn-secondary offset-md-1 col-md-2 btn-get" data-client="<%= client.id %>">Get Current URL</button>
                 </div>
               </td>
             </tr>

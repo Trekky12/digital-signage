@@ -24,8 +24,12 @@
             <tr>
               <td><%= slideshow.id %></td>
               <td><%= slideshow.name %></td>
-              <td><a href="/admin/slideshows/edit/<%= slideshow.id %>">Edit</a></td>
-              <td><a href="/admin/slideshows/delete/<%= slideshow.id %>">Delete</a></td>
+              <td>
+                <a href="/admin/slideshows/edit/<%= slideshow.id %>">Edit</a>
+              </td>
+              <td>
+                <button type="button" class="btn btn-danger delete-slideshow" data-slideshow="<%= slideshow.id %>">Delete</button>
+              </td>
             </tr>
           <% }); %>
         </tbody>
@@ -36,5 +40,6 @@
     </div>
     </main>
     <%- include('../partials/footer'); %>
+    <script src="/admin/slideshow.js"></script>
   </body>
 </html>

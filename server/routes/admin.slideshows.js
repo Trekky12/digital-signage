@@ -30,13 +30,15 @@ router.post('/create', async function (req, res) {
 
     // save the slides
     let slides = req.body.slides;
-    slides.forEach(async function (slide) {
-        await Slide.create({
-            url: slide.url,
-            duration: slide.duration,
-            slideshowId: slideshow.id
-        })
-    });
+    if (slides) {
+        slides.forEach(async function (slide) {
+            await Slide.create({
+                url: slide.url,
+                duration: slide.duration,
+                slideshowId: slideshow.id
+            })
+        });
+    }
 
     return res.redirect('/admin/slideshows/')
 });
@@ -107,11 +109,17 @@ router.post('/edit/:id', async function (req, res) {
  * Delete
  */
 router.get('/delete/:id', async function (req, res) {
-    const slideshow = await Slideshow.findByPk(req.params.id);
-    if (slideshow !== null) {
-        await slideshow.destroy();
+    let msg = "Error when deleting!";
+    
+    let result = await Slideshow.destroy({
+        where: {
+            id: req.params.id
+        }
+    });
+    if (result > 0) {
+        msg = "success";
     }
-    return res.redirect('/admin/slideshows/')
+    return res.json(msg)
 });
 
 

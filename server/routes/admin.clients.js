@@ -11,23 +11,27 @@ module.exports = function (wss) {
     router.get('/', async function (req, res) {
         const wss_clients = []
         wss.clients.forEach(function (client) {
-            wss_clients.push(client.id);
+            wss_clients.push(client.info);
         });
 
         const savedClients = await Client.findAll();
         let clients = [];
-        savedClients.forEach(function (client) {
-            let client2 = client.get({ plain: true });
+        savedClients.forEach(function (savedClient) {
 
-            client2.clientCount = wss_clients.filter(function (item) {
-                if (item === client.id) {
+            let connectedClients = wss_clients.filter(function (item) {
+                if (item.id === savedClient.id) {
                     return true;
                 } else {
                     return false;
                 }
-            }).length;
+            });
 
-            clients.push(client2);
+            clients.push({
+                id: savedClient.id,
+                hostname: savedClient.hostname,
+                slideshowId: savedClient.slideshowId,
+                connectedClients: connectedClients
+            });
         });
 
         const slideshows = await Slideshow.findAll();
@@ -47,10 +51,10 @@ module.exports = function (wss) {
         if (slideshow === null) {
             msg = "Slideshow not found!";
         } else {
-            wss.clients.forEach(function (client) {
-                if (client.id == client_id) {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
+            wss.clients.forEach(function (ws_client) {
+                if (ws_client.info.id == client_id) {
+                    if (ws_client.readyState === WebSocket.OPEN) {
+                        ws_client.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
                         msg = "success";
                     } else {
                         msg = 'Error Client not connected';
@@ -58,6 +62,7 @@ module.exports = function (wss) {
                 }
             });
 
+            // save in db despite offline?
             if (msg == "success") {
                 Client.findByPk(client_id).then(function (client) {
                     client.update({ slideshowId: slideshow_id });
@@ -74,10 +79,10 @@ module.exports = function (wss) {
 
         let msg = "Error: Client not available!";
 
-        wss.clients.forEach(function (client) {
-            if (client.id == client_id) {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ "type": "get_url", "admin": admin_id }));
+        wss.clients.forEach(function (ws_client) {
+            if (ws_client.info.id == client_id) {
+                if (ws_client.readyState === WebSocket.OPEN) {
+                    ws_client.send(JSON.stringify({ "type": "get_url", "admin": admin_id }));
                     msg = "success";
                 } else {
                     msg = 'Error Client not connected';
