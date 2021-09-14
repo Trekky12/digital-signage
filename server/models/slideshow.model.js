@@ -14,6 +14,10 @@ var modelDefinition = {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
+    },
+    lastChange: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
     }
 };
 

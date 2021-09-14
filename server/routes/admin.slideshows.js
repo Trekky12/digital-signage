@@ -3,13 +3,14 @@
 const express = require('express'),
     router = express.Router(),
     Slideshow = require('../models/slideshow.model'),
-    Slide = require('../models/slide.model');
+    Slide = require('../models/slide.model'),
+    moment = require('moment');
 
 //router.use(express.static('public/admin/slideshows'));
 
 router.get('/', function (req, res) {
     return Slideshow.findAll().then(function (slideshows) {
-        return res.render('admin/slideshows/index', { slideshows: slideshows });
+        return res.render('admin/slideshows/index', { slideshows: slideshows, moment: moment });
     })
 });
 
@@ -62,45 +63,48 @@ router.post('/edit/:id', async function (req, res) {
     const slideshow = await Slideshow.findByPk(slideshowID);
     if (slideshow !== null) {
         await slideshow.update({
-            name: name
+            name: name,
+            lastChange: new Date()
         })
     }
 
     // save the slides
     let slides = req.body.slides;
-    slides.forEach(async function (slide) {
+    if (slides) {
+        slides.forEach(async function (slide) {
 
-        let createNew = true;
+            let createNew = true;
 
-        // Delete this saved slide
-        if (slide.delete > 0 && typeof (slide.id) !== 'undefined') {
-            const slideSaved = await Slide.findByPk(slide.id);
-            if (slideSaved !== null) {
-                slideSaved.destroy();
-            }
-            createNew = false;
-        }
-
-        // Update or create 
-        if (slide.delete == 0 && typeof (slide.id) !== 'undefined') {
-            const slideSaved = await Slide.findByPk(slide.id);
-            if (slideSaved !== null) {
-                await slideSaved.update({
-                    url: slide.url,
-                    duration: slide.duration
-                })
+            // Delete this saved slide
+            if (slide.delete > 0 && typeof (slide.id) !== 'undefined') {
+                const slideSaved = await Slide.findByPk(slide.id);
+                if (slideSaved !== null) {
+                    slideSaved.destroy();
+                }
                 createNew = false;
             }
-        }
 
-        if (createNew) {
-            await Slide.create({
-                url: slide.url,
-                duration: slide.duration,
-                slideshowId: slideshowID
-            })
-        }
-    });
+            // Update or create 
+            if (slide.delete == 0 && typeof (slide.id) !== 'undefined') {
+                const slideSaved = await Slide.findByPk(slide.id);
+                if (slideSaved !== null) {
+                    await slideSaved.update({
+                        url: slide.url,
+                        duration: slide.duration
+                    })
+                    createNew = false;
+                }
+            }
+
+            if (createNew) {
+                await Slide.create({
+                    url: slide.url,
+                    duration: slide.duration,
+                    slideshowId: slideshowID
+                })
+            }
+        });
+    }
 
     return res.redirect('/admin/slideshows/')
 });

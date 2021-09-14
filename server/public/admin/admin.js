@@ -30,9 +30,10 @@ sendButtons.forEach(function (button) {
 		event.preventDefault();
 
 		let client = button.dataset.client;
+		let group = button.dataset.group;
 		let slideshow = button.parentElement.querySelector('select.slideshow-select').value;
 
-		let data = { "client": client, "slideshow": slideshow };
+		let data = { "client": client, "group": group, "slideshow": slideshow };
 
 		return fetch("/admin/sendURL", {
 			method: 'POST',
@@ -89,4 +90,35 @@ getButtons.forEach(function (button) {
 			console.log(error);
 		});
 	});
+});
+
+const deleteClientGroupButtons = document.querySelectorAll('button.delete-group');
+deleteClientGroupButtons.forEach(function(btn){
+
+    btn.addEventListener('click', function(event){
+        event.preventDefault();
+
+        if(!confirm("Really delete?")){
+            return;
+        }
+        
+        let clientgroup_id = btn.dataset.group;
+        console.log(clientgroup_id);
+
+        return fetch("/admin/group/delete/"+clientgroup_id, {
+			method: 'GET'
+		}).then(function (response) {
+			return response.json();
+		}).then(function (data) {
+			if (data == "success") {
+				window.location.reload();
+			} else {
+				console.log(data);
+				alert(data);
+			}
+		}).catch(function (error) {
+			console.log(error);
+		});        
+
+    })
 });

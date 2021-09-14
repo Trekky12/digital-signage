@@ -11,7 +11,7 @@ const express = require('express'),
     path = require('path'),
     crypto = require("crypto");
 
-const Client = require('./models/client.model');
+const ClientGroup = require('./models/clientgroup.model');
 const Slideshow = require('./models/slideshow.model');
 
 const app = express();
@@ -20,48 +20,49 @@ const app = express();
 const wss = new WebSocket.Server({ port: 3001 })
 wss.on('connection', function connection(ws, req) {
     const parameters = url.parse(req.url, true);
-    const hostname = parameters.query.hostname;
+    const group = parameters.query.group;
     const type = parameters.query.type;
     const initial = (parameters.query.initial == 'true');
 
     const ip = req.socket.remoteAddress;
 
+    // create an random id for the client to send/get data
+    ws.info = {
+        id : crypto.randomBytes(16).toString("hex"),
+        ip : ip
+    }
+
     if (type == "client") {
-        Client.findOrCreate({
+        ClientGroup.findOrCreate({
             where: { 
-                hostname: hostname
+                name: group
             },
             defaults: {
                 ip: ip,
                 url: '#'
             }
-        }).then(async function ([client, created]) {
+        }).then(async function ([clientgroup, created]) {
             if (created) {
-                console.log("Created Client: ", client.hostname)
+                console.log("Created new Client Group: ", clientgroup.name)
             } else {
-                console.log("Found Client: ", client.hostname);
-                client.ip = ip;
-                client.save();
+                console.log("Found matching Client Group: ", clientgroup.name);
+                /*client.ip = ip;
+                client.save();*/
 
                 // send saved slideshow
-                if (initial && client.slideshowId !== null) {
-                    let slideshow = await Slideshow.findByPk(client.slideshowId, { include: ["slides"] });
+                if (initial && clientgroup.slideshowId !== null) {
+                    console.log("Initially sending of slideshow");
+                    let slideshow = await Slideshow.findByPk(clientgroup.slideshowId, { include: ["slides"] });
                     ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
+                    ws.info.lastSend = new Date();
                 }
+
+                // if not initial? whats the date of the submitted slideshow? get from client!
             }
-            ws.info = {
-                id : client.id,
-                ip : ip
-            }
+            ws.info.group = clientgroup.id;
         });
     }
     if (type == "admin") {
-        // create an id for the admin to send data to
-        ws.info = {
-            id : crypto.randomBytes(16).toString("hex"),
-            ip : ip
-        }
-        
         ws.send(JSON.stringify({ "type": "id", "id": ws.id }));
     }
 

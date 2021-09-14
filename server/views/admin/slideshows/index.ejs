@@ -15,6 +15,7 @@
           <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Last Change</th>
             <th></th>
             <th></th>
           </tr>
@@ -24,6 +25,7 @@
             <tr>
               <td><%= slideshow.id %></td>
               <td><%= slideshow.name %></td>
+              <td><%= moment(slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss'); %></td>
               <td>
                 <a href="/admin/slideshows/edit/<%= slideshow.id %>">Edit</a>
               </td>

@@ -40,9 +40,12 @@ function createWindow () {
     if(!("url" in config)){
       error = "URL not defined!";
     }
-    if(!("uid" in config)){
-      error = "UID not defined!";
-	}
+    if(!("cid" in config)){
+      error = "Client ID not defined!";
+    }
+    if(!("group" in config)){
+      error = "Group not defined!";
+    }
   }else{
     error = "Config could not be loaded!";
   }
@@ -55,9 +58,10 @@ function createWindow () {
       win.webContents.openDevTools()
     }
     const url = config["url"];
-    const computerName = os.hostname()	  
-    const uid = config["uid"];
-    win.loadURL(`${url}?hostname=${computerName}&uid=${uid}`);  
+    const group = config["group"];
+    const cid = config["cid"];
+    const computerName = os.hostname()
+    win.loadURL(`${url}?group=${group}&cid=${uid}&hostname=${computerName}`);  
   }
 
   globalShortcut.register('Escape', () => {

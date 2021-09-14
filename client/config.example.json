@@ -1,5 +1,6 @@
 {
 	"url": "https://www.google.com",
-	"id": "test",
+	"cid": "test",
+	"group": "monitor1",
 	"debug": false
 }

@@ -10,39 +10,98 @@
   <%- include('../partials/navigation', {active:'clients'}); %>
 
     <main role="main" class="container">
-      <h1>Clients</h1>
-      <table id="clients" class="hidden table">
-        <thead>
-          <tr>
-            <th>Hostname</th>
-            <th>Clients/IP</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% clients.forEach(function(client) { %>
-            <tr>
-              <td><%= client.hostname %></td>
-              <td>
-                <% client.connectedClients.forEach(function(ws_client) { %>  
-                <%= ws_client.ip %><br/>
-                <% }); %>
-              <td>
-                <div class="form-group row">
-                  <select class="form-control col-md-6 slideshow-select">
-                    <% slideshows.forEach(function(slideshow) { %>
-                      <option value="<%= slideshow.id %>" <% if(client.slideshowId == slideshow.id){ %>selected="selected"<% } %>><%= slideshow.name %></option>
-                      <% }); %>
-                  </select>
-                  <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send" data-client="<%= client.id %>">Send Slideshow</button>
-                  <button type="button" class="btn btn-secondary offset-md-1 col-md-2 btn-get" data-client="<%= client.id %>">Get Current URL</button>
-                </div>
-              </td>
-            </tr>
-            <% }); %>
-        </tbody>
-      </table>
+      <% clientgroups.forEach(function(clientgroup) { %>
 
+        <div class="container mb-5">
+          <h2 class="display-4">
+            <%= clientgroup.name %>
+          </h2>
+          <p>
+            <small>Last Save: <%= clientgroup.lastSend ? moment(clientgroup.lastSend).format('DD.MM.YYYY HH:mm:ss'): ""
+                %></small>
+          </p>
+          <div class="row">
+            <div class="form-group col-9">
+              <select class="form-control slideshow-select">
+                <% slideshows.forEach(function(slideshow) { %>
+                  <option value="<%= slideshow.id %>" <% if(clientgroup.slideshowId==slideshow.id){ %>
+                    selected="selected"<% } %>><%= slideshow.name %>
+                  </option>
+                  <% }); %>
+              </select>
+            </div>
+            <div class="form-group col-3">
+              <button type="button" class="btn btn-primary btn-send float-right" data-group="<%= clientgroup.id %>">Save
+                & Send</button>
+            </div>
+          </div>
+
+          <% if(clientgroup.clients.length> 0){ %>
+            <h4 class="mt-3">
+              Connected Clients
+            </h4>
+            <table id="clients" class="table">
+              <thead>
+                <tr>
+                  <th>IP</th>
+                  <th>Last Slideshow</th>
+                  <th>Last Send</th>
+                  <th>Message</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% clientgroup.clients.forEach(function(client) { %>
+                  <tr>
+                    <td>
+                      <%= client.ip %>
+                    </td>
+                    <td>
+                      <% if (clientgroup.slideshow){ %>
+                        <%=clientgroup.slideshow.name %> (Last Change: <%=
+                            moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %>)
+                            <% } %>
+                    </td>
+                    <td>
+                      <%= client.lastSend ? moment(client.lastSend).format('DD.MM.YYYY HH:mm:ss') : "" %>
+                    </td>
+                    <td>
+                      <% if (clientgroup.slideshow && clientgroup.slideshow.lastChange> client.lastSend){ %>
+                        The slideshow of the client is not up to date!
+                        <% } %>
+                    </td>
+                    <td>
+                      <!--<div class="form-group row">
+                    <select class="form-control col-md-6 slideshow-select">
+                      <% slideshows.forEach(function(slideshow) { %>
+                        <option value="<%= slideshow.id %>" <% if(clientgroup.slideshowId==slideshow.id){ %>
+                          selected="selected"<% } %>><%= slideshow.name %>
+                        </option>
+                        <% }); %>
+                    </select>
+                    <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send"
+                      data-client="<%= client.id %>">Send Slideshow</button>
+                  
+                    <button type="button" class="btn btn-secondary offset-md-1 col-md-2 btn-get"
+                      data-client="<%= client.id %>">Get Current URL</button>
+                      -->
+                      <button type="button" class="btn btn-secondary float-right btn-get"
+                        data-client="<%= client.id %>">Get
+                        Current URL</button>
+                    </td>
+                  </tr>
+                  <% }); %>
+              </tbody>
+            </table>
+            <% } %>
+
+              <div class="d-flex flex-row">
+                <button type="button" class="btn btn-danger delete-group" data-group="<%= clientgroup.id %>">Delete
+                  Client
+                  Group</button>
+              </div>
+        </div>
+        <% }); %>
     </main>
     <%- include('../partials/footer'); %>
       <script src="admin.js"></script>
