@@ -15,7 +15,7 @@ ws.onmessage = function (evt) {
 		myWSClientID = jsonObject.id;
 	}
 	if (jsonObject.type == "get_url_result") {
-		alert(jsonObject.url);
+		alert(jsonObject.value);
 	}
 };
 
@@ -31,7 +31,7 @@ sendButtons.forEach(function (button) {
 
 		let client = button.dataset.client;
 		let group = button.dataset.group;
-		let slideshow = button.parentElement.querySelector('select.slideshow-select').value;
+		let slideshow = button.parentElement.parentElement.querySelector('select.slideshow-select').value;
 
 		let data = { "client": client, "group": group, "slideshow": slideshow };
 
@@ -52,6 +52,7 @@ sendButtons.forEach(function (button) {
 			} else {
 				console.log(data);
 				alert(data);
+				window.location.reload();
 			}
 		}).catch(function (error) {
 			console.log(error);

@@ -25,12 +25,12 @@
 		const server = urlParams.has("server") ? urlParams.get('server') : window.location.hostname;
 		const port = urlParams.has("port") ? urlParams.get('port') : "3001";
 		const group = urlParams.has("group") ? urlParams.get('group') : "default";
-
-		let current_url = "";
+		const cid = urlParams.has("cid") ? urlParams.get('cid') : null;
 
 		let slides = [];
 		let slideIndex = 0;
 		let timeoutIndx;
+		let lastSlideshowReceive = null;
 
 		function showSlides() {
 			slideIndex++;
@@ -47,17 +47,27 @@
 
 		function connect(initial) {
 
-			var ws = new WebSocket("ws://" + server + ":" + port + "?type=client&group=" + group + "&initial=" + initial);
-			
+			let url = "ws://" + server + ":" + port + "?type=client&group=" + group + "&initial=" + initial;
+
+			if(cid !== null){
+				url = url  + "&cid=" + cid;
+			}
+
+			var ws = new WebSocket(url);
+
 			ws.onopen = function () {
 				document.getElementById("message").innerText = "";
+				
+				if(lastSlideshowReceive !== null){
+					ws.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive }));
+				}
 			};
 
 			ws.onmessage = function (evt) {
 				var received_msg = evt.data;
 				var jsonObject = JSON.parse(evt.data);
 				let type = jsonObject.type;
-				
+
 				if (type == "send_url") {
 
 					if (typeof (timeoutIndx) !== 'undefined') {
@@ -66,11 +76,12 @@
 
 					slides = jsonObject.slideshow.slides;
 					slideIndex = 0;
+					lastSlideshowReceive = new Date();
 					showSlides();
 				}
 
 				if (type == "get_url") {
-					ws.send(JSON.stringify({ "type": "get_url_result", "url": document.getElementById("content").src, "admin": jsonObject.admin }));
+					ws.send(JSON.stringify({ "type": "get_url_result", "value": document.getElementById("content").src, "admin": jsonObject.admin }));
 				}
 			};
 

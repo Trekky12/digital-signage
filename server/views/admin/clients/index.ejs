@@ -66,7 +66,7 @@
                       <%= client.lastSend ? moment(client.lastSend).format('DD.MM.YYYY HH:mm:ss') : "" %>
                     </td>
                     <td>
-                      <% if (clientgroup.slideshow && clientgroup.slideshow.lastChange> client.lastSend){ %>
+                      <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange > client.lastSend)){ %>
                         The slideshow of the client is not up to date!
                         <% } %>
                     </td>

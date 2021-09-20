@@ -46,8 +46,6 @@ wss.on('connection', function connection(ws, req) {
                 console.log("Created new Client Group: ", clientgroup.name)
             } else {
                 console.log("Found matching Client Group: ", clientgroup.name);
-                /*client.ip = ip;
-                client.save();*/
 
                 // send saved slideshow
                 if (initial && clientgroup.slideshowId !== null) {
@@ -56,9 +54,11 @@ wss.on('connection', function connection(ws, req) {
                     ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
                     ws.info.lastSend = new Date();
                 }
-
-                // if not initial? whats the date of the submitted slideshow? get from client!
             }
+
+            // Client connected!
+            console.log("client connected!");
+
             ws.info.group = clientgroup.id;
         });
     }
@@ -75,10 +75,15 @@ wss.on('connection', function connection(ws, req) {
             wss.clients.forEach(function (client) {
                 if (client.id == data.admin) {
                     if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ "type": "get_url_result", "url": data.url }));
+                        client.send(JSON.stringify({ "type": "get_url_result", "value": data.value }));
                     }
                 }
             });
+        }
+
+        // when a connection is restored the client sends the last date of the sended slideshow
+        if (data.type == "get_last_send_result") {
+            ws.info.lastSend = new Date(data.value);
         }
     });
 });
