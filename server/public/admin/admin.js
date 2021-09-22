@@ -81,12 +81,6 @@ getButtons.forEach(function (button) {
 		}).then(function (response) {
 			return response.json();
 		}).then(function (data) {
-			if (data == "success") {
-				window.location.reload();
-			} else {
-				console.log(data);
-				alert(data);
-			}
 		}).catch(function (error) {
 			console.log(error);
 		});

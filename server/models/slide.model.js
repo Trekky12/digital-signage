@@ -17,6 +17,10 @@ var modelDefinition = {
     duration: {
         type: Sequelize.INTEGER,
         allowNull: false
+    },
+    position: {
+        type: Sequelize.INTEGER,
+        allowNull: false
     }
 };
 

@@ -44,9 +44,11 @@
               <thead>
                 <tr>
                   <th>IP</th>
+                  <th>Hostname</th>
+                  <th>Client ID</th>
                   <th>Last Slideshow</th>
                   <th>Last Send</th>
-                  <th>Message</th>
+                  <th></th>
                   <th></th>
                 </tr>
               </thead>
@@ -57,17 +59,25 @@
                       <%= client.ip %>
                     </td>
                     <td>
+                      <%= client.hostname %>
+                    </td>
+                    <td>
+                      <%= client.cid %>
+                    </td>
+                    <td>
                       <% if (clientgroup.slideshow){ %>
-                        <%=clientgroup.slideshow.name %> (Last Change: <%=
-                            moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %>)
-                            <% } %>
+                        <%=clientgroup.slideshow.name %> <br>
+                          (Last Change: <%= moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %>)
+                      <% } %>
                     </td>
                     <td>
                       <%= client.lastSend ? moment(client.lastSend).format('DD.MM.YYYY HH:mm:ss') : "" %>
                     </td>
                     <td>
-                      <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange > client.lastSend)){ %>
-                        The slideshow of the client is not up to date!
+                      <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange> client.lastSend)){ %>
+                        <div class="alert alert-danger" role="alert">
+                          The slideshow of the client is not up to date!
+                        </div>
                         <% } %>
                     </td>
                     <td>

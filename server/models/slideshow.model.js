@@ -28,7 +28,6 @@ var SlideshowModel = db.define('slideshow', modelDefinition);
  */
 var Slide = require('./slide.model');
 SlideshowModel.hasMany(Slide, { 
-    as: "slides",
     onDelete: 'cascade', 
     foreignKey: { 
         allowNull: false 

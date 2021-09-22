@@ -11,8 +11,9 @@ const express = require('express'),
     path = require('path'),
     crypto = require("crypto");
 
-const ClientGroup = require('./models/clientgroup.model');
-const Slideshow = require('./models/slideshow.model');
+const ClientGroup = require('./models/clientgroup.model'),
+    Slideshow = require('./models/slideshow.model'),
+    Slide = require('./models/slide.model');
 
 const app = express();
 
@@ -23,23 +24,23 @@ wss.on('connection', function connection(ws, req) {
     const group = parameters.query.group;
     const type = parameters.query.type;
     const initial = (parameters.query.initial == 'true');
+    const hostname = parameters.query.hostname ? parameters.query.hostname : null;
+    const cid = parameters.query.cid ? parameters.query.cid : null;
 
     const ip = req.socket.remoteAddress;
 
     // create an random id for the client to send/get data
     ws.info = {
-        id : crypto.randomBytes(16).toString("hex"),
-        ip : ip
+        id: crypto.randomBytes(16).toString("hex"),
+        ip: ip,
+        hostname: hostname,
+        cid: cid
     }
 
     if (type == "client") {
         ClientGroup.findOrCreate({
-            where: { 
+            where: {
                 name: group
-            },
-            defaults: {
-                ip: ip,
-                url: '#'
             }
         }).then(async function ([clientgroup, created]) {
             if (created) {
@@ -50,7 +51,10 @@ wss.on('connection', function connection(ws, req) {
                 // send saved slideshow
                 if (initial && clientgroup.slideshowId !== null) {
                     console.log("Initially sending of slideshow");
-                    let slideshow = await Slideshow.findByPk(clientgroup.slideshowId, { include: ["slides"] });
+                    let slideshow = await Slideshow.findByPk(clientgroup.slideshowId, {
+                        include: [Slide],
+                        order: [[Slide, 'position', 'asc']]
+                    });
                     ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
                     ws.info.lastSend = new Date();
                 }
@@ -103,7 +107,7 @@ app.set('view engine', 'ejs')
 app.use('/css', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css')))
 app.use('/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js')))
 app.use('/js', express.static(path.join(__dirname, 'node_modules/jquery/dist')))
-
+app.use('/js', express.static(path.join(__dirname, 'node_modules/sortablejs')))
 
 // Routes
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -32,11 +32,12 @@ router.post('/create', async function (req, res) {
     // save the slides
     let slides = req.body.slides;
     if (slides) {
-        slides.forEach(async function (slide) {
+        slides.forEach(async function (slide, index) {
             await Slide.create({
                 url: slide.url,
                 duration: slide.duration,
-                slideshowId: slideshow.id
+                slideshowId: slideshow.id,
+                position: index
             })
         });
     }
@@ -48,7 +49,10 @@ router.post('/create', async function (req, res) {
  * Update
  */
 router.get('/edit/:id', async function (req, res) {
-    const slideshow = await Slideshow.findByPk(req.params.id, { include: ["slides"] });
+    const slideshow = await Slideshow.findByPk(req.params.id, {
+        include: [Slide],
+        order: [[Slide, 'position', 'asc']]
+    });
     if (slideshow !== null) {
         return res.render('admin/slideshows/edit', { entry: slideshow });
     }
@@ -71,7 +75,7 @@ router.post('/edit/:id', async function (req, res) {
     // save the slides
     let slides = req.body.slides;
     if (slides) {
-        slides.forEach(async function (slide) {
+        slides.forEach(async function (slide, index) {
 
             let createNew = true;
 
@@ -90,7 +94,8 @@ router.post('/edit/:id', async function (req, res) {
                 if (slideSaved !== null) {
                     await slideSaved.update({
                         url: slide.url,
-                        duration: slide.duration
+                        duration: slide.duration,
+                        position: index
                     })
                     createNew = false;
                 }
@@ -100,7 +105,8 @@ router.post('/edit/:id', async function (req, res) {
                 await Slide.create({
                     url: slide.url,
                     duration: slide.duration,
-                    slideshowId: slideshowID
+                    slideshowId: slideshowID,
+                    position: index
                 })
             }
         });
@@ -114,7 +120,7 @@ router.post('/edit/:id', async function (req, res) {
  */
 router.get('/delete/:id', async function (req, res) {
     let msg = "Error when deleting!";
-    
+
     let result = await Slideshow.destroy({
         where: {
             id: req.params.id

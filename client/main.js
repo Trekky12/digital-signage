@@ -60,8 +60,9 @@ function createWindow () {
     const url = config["url"];
     const group = config["group"];
     const cid = config["cid"];
-    const computerName = os.hostname()
-    win.loadURL(`${url}?group=${group}&cid=${uid}&hostname=${computerName}`);  
+    const computerName = os.hostname();
+    const serverURL = `${url}?group=${group}&cid=${cid}&hostname=${computerName}`;
+    win.loadURL(serverURL);
   }
 
   globalShortcut.register('Escape', () => {

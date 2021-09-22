@@ -30,30 +30,68 @@
             <% entry.slides.forEach(function(slide, index) { %>
               <div class="form-row slide is-saved">
                 <input type="hidden" name="slides[<%= index %>][id]" value="<%= slide.id %>">
-                <div class="form-group col-md-10">
-                  <label for="inputURL">URL</label>
-                  <input type="text" class="form-control" id="inputURL" name="slides[<%= index %>][url]" value="<%= slide.url %>">
+                <div class="form-group col-md-10 d-flex">
+                  <div class="handle d-flex flex-column justify-content-end" role="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      style="height: 38px; width: auto" viewBox="0 0 16 16">
+                      <path
+                        d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                    </svg>
+                  </div>
+                  <div class="flex-grow-1">
+                    <label for="inputURL">URL</label>
+                    <input type="text" class="form-control" id="inputURL" name="slides[<%= index %>][url]"
+                      value="<%= slide.url %>">
+                  </div>
                 </div>
                 <div class="form-group col-md-1">
                   <label for="inputDuration">Duration</label>
-                  <input type="number" class="form-control" id="inputDuration"  name="slides[<%= index %>][duration]" value="<%= slide.duration %>">
+                  <input type="number" class="form-control" id="inputDuration" name="slides[<%= index %>][duration]"
+                    value="<%= slide.duration %>">
                 </div>
                 <div class="form-group col-md-1 d-flex flex-column justify-content-end">
                   <input type="hidden" name="slides[<%= index %>][delete]" value="0" class="delete-slide-server">
                   <button type="button" class="btn btn-danger delete-slide">Delete</button>
                 </div>
               </div>
-            <% }); %>
-          <% } %>
-      </div>
+              <% }); %>
+                <% } %>
+        </div>
         <button type="submit" class="btn btn-primary">
           <% if(locals.entry){ %>Update<% }else{ %>Create<% } %>
         </button>
       </form>
 
     </main>
+
+    <div id="slide-template" hidden>
+      <div class="form-row slide">
+        <div class="form-group col-md-10 d-flex">
+          <div class="handle d-flex flex-column justify-content-end" role="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              style="height: 38px; width: auto" viewBox="0 0 16 16">
+              <path
+                d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+            </svg>
+          </div>
+          <div class="flex-grow-1">
+            <label for="inputURL">URL</label>
+            <input type="text" class="form-control" id="inputURL" name="slides[DUMMY][url]" disabled="true">
+          </div>
+        </div>
+        <div class="form-group col-md-1">
+          <label for="inputDuration">Duration</label>
+          <input type="number" class="form-control" id="inputDuration" name="slides[DUMMY][duration]" disabled="true">
+        </div>
+        <div class="form-group col-md-1 d-flex flex-column justify-content-end">
+          <button type="button" class="btn btn-danger delete-slide">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <%- include('../partials/footer'); %>
-    <script src="/admin/slideshow.js"></script>
+      <script src="/js/Sortable.min.js"></script>
+      <script src="/admin/slideshow.js"></script>
 </body>
 
 </html>

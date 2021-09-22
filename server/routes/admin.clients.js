@@ -5,6 +5,7 @@ const express = require('express'),
     router = express.Router(),
     ClientGroup = require('../models/clientgroup.model'),
     Slideshow = require('../models/slideshow.model'),
+    Slide = require('../models/slide.model'),
     moment = require('moment');
 
 module.exports = function (wss) {
@@ -27,7 +28,6 @@ module.exports = function (wss) {
                     return false;
                 }
             });
-
             clientgroup.clients = connectedClients;
 
             slideshows.forEach(function(slideshow){
@@ -37,7 +37,6 @@ module.exports = function (wss) {
             });
 
         });
-
 
         return res.render('admin/clients/index', { clientgroups: clientGroups, slideshows: slideshows, moment: moment })
     });
@@ -50,7 +49,10 @@ module.exports = function (wss) {
 
         let msg = "Error: Client Group not available!";
 
-        let slideshow = await Slideshow.findByPk(slideshow_id, { include: ["slides"] });
+        let slideshow = await Slideshow.findByPk(slideshow_id, { 
+            include: [Slide],
+            order: [[Slide, 'position', 'asc']]
+        });
 
         let sendDate = new Date();
 
