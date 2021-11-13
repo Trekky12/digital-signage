@@ -30,8 +30,10 @@
 
 		let slides = [];
 		let slideIndex = 0;
-		let timeoutIndx;
+		let nextSlideIndx;
 		let lastSlideshowReceive = null;
+		let hearbeatTimeoutIndx;
+		let ws_client;
 
 		function showSlides() {
 			slideIndex++;
@@ -43,7 +45,7 @@
 			console.log("go to slide");
 			console.log(slide);
 			document.getElementById("content").src = slide.url;
-			timeoutIndx = setTimeout(showSlides, slide.duration * 1000);
+			nextSlideIndx = setTimeout(showSlides, slide.duration * 1000);
 		}
 
 		function connect(initial) {
@@ -57,25 +59,26 @@
 				url = url + "&cid=" + cid;
 			}
 
-			var ws = new WebSocket(url);
+			ws_client = new WebSocket(url);
 
-			ws.onopen = function () {
+			ws_client.onopen = function () {
 				document.getElementById("message").innerText = "";
 
 				if (lastSlideshowReceive !== null) {
-					ws.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive }));
+					ws_client.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive }));
 				}
+				heartbeat();
 			};
 
-			ws.onmessage = function (evt) {
+			ws_client.onmessage = function (evt) {
 				var received_msg = evt.data;
 				var jsonObject = JSON.parse(evt.data);
 				let type = jsonObject.type;
 
 				if (type == "send_url") {
 
-					if (typeof (timeoutIndx) !== 'undefined') {
-						clearInterval(timeoutIndx);
+					if (typeof (nextSlideIndx) !== 'undefined') {
+						clearInterval(nextSlideIndx);
 					}
 
 					slides = jsonObject.slideshow.slides;
@@ -85,11 +88,17 @@
 				}
 
 				if (type == "get_url") {
-					ws.send(JSON.stringify({ "type": "get_url_result", "value": document.getElementById("content").src, "admin": jsonObject.admin }));
+					ws_client.send(JSON.stringify({ "type": "get_url_result", "value": document.getElementById("content").src, "admin": jsonObject.admin }));
+				}
+
+				// received hearbeat so we are still connected!
+				if(type == "heartbeat"){
+					heartbeat();
 				}
 			};
 
-			ws.onclose = function (e) {
+			ws_client.onclose = function (e) {
+				clearTimeout(hearbeatTimeoutIndx);
 				console.log('Socket is closed. Reconnect will be attempted in 10 seconds.', e.reason);
 				document.getElementById("message").innerText = "Offline";
 				setTimeout(function () {
@@ -97,13 +106,20 @@
 				}, 10000);
 			};
 
-			ws.onerror = function (err) {
+			ws_client.onerror = function (err) {
 				console.error('Socket encountered error: ', err.message, 'Closing socket');
-				ws.close();
+				ws_client.close();
 			};
 		}
 
-		connect(true);
+		function heartbeat(){
+			clearTimeout(hearbeatTimeoutIndx);
+			hearbeatTimeoutIndx = setTimeout(function(){
+				ws_client.close();
+			}, 30000 + 1000);
+		}
+
+        connect(true);
 	</script>
 </body>
 

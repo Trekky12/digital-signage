@@ -90,6 +90,29 @@ wss.on('connection', function connection(ws, req) {
             ws.info.lastSend = new Date(data.value);
         }
     });
+
+    // on pong message set client alive
+    ws.isAlive = true;
+    ws.on('pong', function(){
+        this.isAlive = true;
+    });
+});
+
+// regulary send pings to clients
+const interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+        if (ws.isAlive === false) return ws.terminate();
+
+        ws.isAlive = false;
+        // automatic handling
+        ws.ping();
+        // send hearbeat to client
+        ws.send(JSON.stringify({ "type": "heartbeat" }));
+    });
+}, 30000);
+
+wss.on('close', function close() {
+    clearInterval(interval);
 });
 
 // Database
