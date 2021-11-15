@@ -87,6 +87,35 @@ getButtons.forEach(function (button) {
 	});
 });
 
+const reloadButtons = document.querySelectorAll('button.btn-reload');
+reloadButtons.forEach(function (button) {
+
+	button.addEventListener('click', function (event) {
+		event.preventDefault();
+
+		let client = button.dataset.client;
+
+		let data = { "client": client, "admin": myWSClientID };
+
+		return fetch("/admin/reload", {
+			method: 'POST',
+			credentials: "same-origin",
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+		}).then(function (response) {
+			return response.json();
+		}).then(function (data) {
+            alert(data);
+            window.location.reload();
+		}).catch(function (error) {
+			console.log(error);
+		});
+	});
+});
+
 const deleteClientGroupButtons = document.querySelectorAll('button.delete-group');
 deleteClientGroupButtons.forEach(function(btn){
 

@@ -50,6 +50,7 @@
                   <th>Last Send</th>
                   <th></th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -98,6 +99,10 @@
                       <button type="button" class="btn btn-secondary float-right btn-get"
                         data-client="<%= client.id %>">Get
                         Current URL</button>
+                        </td>
+                        <td>
+                        <button type="button" class="btn btn-secondary float-right btn-reload"
+                        data-client="<%= client.id %>">Reload Client</button>
                     </td>
                   </tr>
                   <% }); %>

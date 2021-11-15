@@ -104,6 +104,26 @@ module.exports = function (wss) {
         return res.json(msg)
     });
 
+    router.post('/reload', async function (req, res) {
+        let client_id = req.body.client;
+        let admin_id = req.body.admin;
+
+        let msg = "Error: Client not available!";
+
+        wss.clients.forEach(function (ws_client) {
+            if (ws_client.info.id == client_id) {
+                if (ws_client.readyState === WebSocket.OPEN) {
+                    ws_client.send(JSON.stringify({ "type": "reload", "admin": admin_id }));
+                    msg = "success";
+                } else {
+                    msg = 'Error Client not connected';
+                }
+            }
+        });
+
+        return res.json(msg)
+    });
+
     /**
      * Delete Client group
      */

@@ -95,6 +95,11 @@
 				if(type == "heartbeat"){
 					heartbeat();
 				}
+
+                if(type == "reload"){
+                    console.log("Reloading..");
+					window.location = window.location;
+				}
 			};
 
 			ws_client.onclose = function (e) {
