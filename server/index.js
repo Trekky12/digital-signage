@@ -55,8 +55,9 @@ wss.on('connection', function connection(ws, req) {
                         include: [Slide],
                         order: [[Slide, 'position', 'asc']]
                     });
-                    ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow }));
-                    ws.info.lastSend = new Date();
+                    let lastSend = new Date();
+                    ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow, "date": lastSend }));
+                    ws.info.lastSend = lastSend;
                 }
             }
 

@@ -65,7 +65,7 @@
 				document.getElementById("message").innerText = "";
 
 				if (lastSlideshowReceive !== null) {
-					ws_client.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive }));
+					ws_client.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive, "slides": slides }));
 				}
 				heartbeat();
 			};
@@ -83,7 +83,7 @@
 
 					slides = jsonObject.slideshow.slides;
 					slideIndex = 0;
-					lastSlideshowReceive = new Date();
+					lastSlideshowReceive = jsonObject.date;
 					showSlides();
 				}
 
