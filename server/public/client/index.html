@@ -2,130 +2,219 @@
 <html lang="en">
 
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>Client</title>
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Client</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
 
-	<style>
-		#message {
-			position: absolute;
-			right: 20px;
-			bottom: 0;
-		}
-	</style>
+    <style>
+        #message {
+            position: absolute;
+            right: 20px;
+            bottom: 0;
+        }
+
+        #navigation {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 10%;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #navigation-content {
+            display: none;
+        }
+
+        #navigation-content button {
+            font-size: x-large;
+        }
+
+        #navigation:hover {
+            background: #CCC;
+        }
+
+        #navigation:hover #navigation-content {
+            display: block;
+        }
+    </style>
 </head>
 
 <body style="overflow:hidden; margin:0; padding:0;">
-	<div id="message"></div>
-	<iframe src="" id="content" style="width:100vw; height:100vh; border:none"></iframe>
-	<script type="text/javascript">
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-		const server = urlParams.has("server") ? urlParams.get('server') : window.location.hostname;
-		const port = urlParams.has("port") ? urlParams.get('port') : "3001";
-		const group = urlParams.has("group") ? urlParams.get('group') : "default";
-		const hostname = urlParams.has("hostname") ? urlParams.get('hostname') : null;
-		const cid = urlParams.has("cid") ? urlParams.get('cid') : null;
+    <div id="navigation">
+        <div id="navigation-content">
+            <button id="prevBtn">Prev</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="playBtn" style="display: none;">Play</button>
+            <button id="nextBtn">Next</button>
+        </div>
+    </div>
+    <div id="message"></div>
+    <iframe src="" id="content" style="width:100vw; height:100vh; border:none"></iframe>
+    <script type="text/javascript">
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const server = urlParams.has("server") ? urlParams.get('server') : window.location.hostname;
+        const port = urlParams.has("port") ? urlParams.get('port') : "3001";
+        const group = urlParams.has("group") ? urlParams.get('group') : "default";
+        const hostname = urlParams.has("hostname") ? urlParams.get('hostname') : null;
+        const cid = urlParams.has("cid") ? urlParams.get('cid') : null;
 
-		let slides = [];
-		let slideIndex = 0;
-		let nextSlideIndx;
-		let lastSlideshowReceive = null;
-		let hearbeatTimeoutIndx;
-		let ws_client;
+        let slides = [];
+        let slideIndex = 0;
+        let nextSlideIndx;
+        let lastSlideshowReceive = null;
+        let hearbeatTimeoutIndx;
+        let ws_client;
 
-		function showSlides() {
-			slideIndex++;
-			if (slideIndex > slides.length) {
-				slideIndex = 1;
-			}
-			let slide = slides[slideIndex - 1];
+        function showSlide() {
+            let slide = slides[slideIndex - 1];
 
-			console.log("go to slide");
-			console.log(slide);
-			document.getElementById("content").src = slide.url;
-			nextSlideIndx = setTimeout(showSlides, slide.duration * 1000);
-		}
+            console.log("go to slide");
+            console.log(slide);
+            document.getElementById("content").src = slide.url;
+            nextSlideIndx = setTimeout(showNextSlide, slide.duration * 1000);
+        }
 
-		function connect(initial) {
 
-			let url = "ws://" + server + ":" + port + "?type=client&group=" + group + "&initial=" + initial;
+        function showNextSlide() {
+            slideIndex++;
+            if (slideIndex > slides.length) {
+                slideIndex = 1;
+            }
+            showSlide();
+        }
 
-			if (hostname !== null) {
-				url = url + "&hostname=" + hostname;
-			}
-			if (cid !== null) {
-				url = url + "&cid=" + cid;
-			}
+        function showPreviousSlide() {
+            slideIndex--;
+            if (slideIndex <= 0) {
+                slideIndex = slides.length;
+            }
+            showSlide();
+        }
 
-			ws_client = new WebSocket(url);
+        function connect(initial) {
 
-			ws_client.onopen = function () {
-				document.getElementById("message").innerText = "";
+            let url = "ws://" + server + ":" + port + "?type=client&group=" + group + "&initial=" + initial;
 
-				if (lastSlideshowReceive !== null) {
-					ws_client.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive, "slides": slides }));
-				}
-				heartbeat();
-			};
+            if (hostname !== null) {
+                url = url + "&hostname=" + hostname;
+            }
+            if (cid !== null) {
+                url = url + "&cid=" + cid;
+            }
 
-			ws_client.onmessage = function (evt) {
-				var received_msg = evt.data;
-				var jsonObject = JSON.parse(evt.data);
-				let type = jsonObject.type;
+            ws_client = new WebSocket(url);
 
-				if (type == "send_url") {
+            ws_client.onopen = function () {
+                document.getElementById("message").innerText = "";
 
-					if (typeof (nextSlideIndx) !== 'undefined') {
-						clearInterval(nextSlideIndx);
-					}
+                if (lastSlideshowReceive !== null) {
+                    ws_client.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive, "slides": slides }));
+                }
+                heartbeat();
+            };
 
-					slides = jsonObject.slideshow.slides;
-					slideIndex = 0;
-					lastSlideshowReceive = jsonObject.date;
-					showSlides();
-				}
+            ws_client.onmessage = function (evt) {
+                var received_msg = evt.data;
+                var jsonObject = JSON.parse(evt.data);
+                let type = jsonObject.type;
 
-				if (type == "get_url") {
-					ws_client.send(JSON.stringify({ "type": "get_url_result", "value": document.getElementById("content").src, "admin": jsonObject.admin }));
-				}
+                if (type == "send_url") {
 
-				// received hearbeat so we are still connected!
-				if(type == "heartbeat"){
-					heartbeat();
-				}
+                    if (typeof (nextSlideIndx) !== 'undefined') {
+                        clearInterval(nextSlideIndx);
+                    }
 
-                if(type == "reload"){
+                    slides = jsonObject.slideshow.slides;
+                    slideIndex = 0;
+                    lastSlideshowReceive = jsonObject.date;
+                    showNextSlide();
+                }
+
+                if (type == "get_url") {
+                    ws_client.send(JSON.stringify({ "type": "get_url_result", "value": document.getElementById("content").src, "admin": jsonObject.admin }));
+                }
+
+                // received hearbeat so we are still connected!
+                if (type == "heartbeat") {
+                    heartbeat();
+                }
+
+                if (type == "reload") {
                     console.log("Reloading..");
-					window.location = window.location;
-				}
-			};
+                    window.location = window.location;
+                }
+            };
 
-			ws_client.onclose = function (e) {
-				clearTimeout(hearbeatTimeoutIndx);
-				console.log('Socket is closed. Reconnect will be attempted in 10 seconds.', e.reason);
-				document.getElementById("message").innerText = "Offline";
-				setTimeout(function () {
-					connect(false);
-				}, 10000);
-			};
+            ws_client.onclose = function (e) {
+                clearTimeout(hearbeatTimeoutIndx);
+                console.log('Socket is closed. Reconnect will be attempted in 10 seconds.', e.reason);
+                document.getElementById("message").innerText = "Offline";
+                setTimeout(function () {
+                    connect(false);
+                }, 10000);
+            };
 
-			ws_client.onerror = function (err) {
-				console.error('Socket encountered error: ', err.message, 'Closing socket');
-				ws_client.close();
-			};
-		}
+            ws_client.onerror = function (err) {
+                console.error('Socket encountered error: ', err.message, 'Closing socket');
+                ws_client.close();
+            };
+        }
 
-		function heartbeat(){
-			clearTimeout(hearbeatTimeoutIndx);
-			hearbeatTimeoutIndx = setTimeout(function(){
-				ws_client.close();
-			}, 30000 + 1000);
-		}
+        function heartbeat() {
+            clearTimeout(hearbeatTimeoutIndx);
+            hearbeatTimeoutIndx = setTimeout(function () {
+                ws_client.close();
+            }, 30000 + 1000);
+        }
 
         connect(true);
-	</script>
+
+        const pauseBtn = document.getElementById('pauseBtn');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        pauseBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            playBtn.style.display = "inline-block";
+            pauseBtn.style.display = "none";
+
+            console.log("Pause slideshow");
+            clearTimeout(nextSlideIndx);
+        });
+
+        playBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            playBtn.style.display = "none";
+            pauseBtn.style.display = "inline-block";
+
+            let slide = slides[slideIndex - 1];
+
+            console.log("Play Slideshow");
+            clearTimeout(nextSlideIndx);
+            nextSlideIndx = setTimeout(showNextSlide, slide.duration * 1000);
+        });
+
+        prevBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            playBtn.style.display = "none";
+            pauseBtn.style.display = "inline-block";
+            clearTimeout(nextSlideIndx);
+            showPreviousSlide();
+        });
+        nextBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            playBtn.style.display = "none";
+            pauseBtn.style.display = "inline-block";
+            clearTimeout(nextSlideIndx);
+            showNextSlide();
+        });
+    </script>
 </body>
 
 </html>
