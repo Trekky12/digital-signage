@@ -9,15 +9,15 @@
 <body>
   <%- include('../partials/navigation', {active:'clients'}); %>
 
-    <main role="main" class="container">
+    <main role="main" class="container-fluid">
       <% clientgroups.forEach(function(clientgroup) { %>
 
-        <div class="container mb-5">
+        <div class="container-fluid mb-5">
           <h2 class="display-4">
             <%= clientgroup.name %>
           </h2>
           <p>
-            <small>Last Save: <%= clientgroup.lastSend ? moment(clientgroup.lastSend).format('DD.MM.YYYY HH:mm:ss'): ""
+            <small>Last Save: <%= clientgroup.lastSendSlideshow ? moment(clientgroup.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss'): ""
                 %></small>
           </p>
           <div class="row">
@@ -36,6 +36,23 @@
             </div>
           </div>
 
+          <div class="row">
+            <div class="form-group col-9">
+              <select class="form-control ticker-select">
+                  <option value="" <% if(clientgroup.tickerId){ %>selected="selected"<% } %>>- None - </option>
+                <% tickers.forEach(function(ticker) { %>
+                  <option value="<%= ticker.id %>" <% if(clientgroup.tickerId==ticker.id){ %>
+                    selected="selected"<% } %>><%= ticker.name %>
+                  </option>
+                  <% }); %>
+              </select>
+            </div>
+            <div class="form-group col-3">
+              <button type="button" class="btn btn-primary btn-send-ticker float-right" data-group="<%= clientgroup.id %>">Save
+                & Send</button>
+            </div>
+          </div>
+
           <% if(clientgroup.clients.length> 0){ %>
             <h4 class="mt-3">
               Connected Clients
@@ -46,9 +63,9 @@
                   <th>IP</th>
                   <th>Hostname</th>
                   <th>Client ID</th>
-                  <th>Last Slideshow</th>
-                  <th>Last Send</th>
+                  <th>Slideshow</th>
                   <th></th>
+                  <th>Ticker</th>
                   <th></th>
                   <th></th>
                 </tr>
@@ -68,19 +85,30 @@
                     <td>
                       <% if (clientgroup.slideshow){ %>
                         <%=clientgroup.slideshow.name %> <br>
-                          (Last Change: <%= moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %>)
+                          <small>Last Change: <%= moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %></small><br>
+                          <small>Last Send:  <%= client.lastSendSlideshow ? moment(client.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss') : "" %> </small><br><br>
                       <% } %>
-                    </td>
-                    <td>
-                      <%= client.lastSend ? moment(client.lastSend).format('DD.MM.YYYY HH:mm:ss') : "" %>
-                    </td>
-                    <td>
-                      <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange> client.lastSend)){ %>
+                      <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange> client.lastSendSlideshow)){ %>
                         <div class="alert alert-danger" role="alert">
                           The slideshow of the client is not up to date!
                         </div>
                         <% } %>
                     </td>
+                    <td>
+                      
+                    </td>
+                    <td>
+                        <% if (clientgroup.ticker){ %>
+                          <%=clientgroup.ticker.name %> <br>
+                            <small>Last Change: <%= moment(clientgroup.ticker.lastChange).format('DD.MM.YYYY HH:mm:ss') %></small><br>
+                            <small>Last Send:  <%= client.lastSendTicker ? moment(client.lastSendTicker).format('DD.MM.YYYY HH:mm:ss') : "" %></small> <br><br>
+                        <% } %>
+                        <% if (clientgroup.ticker && (clientgroup.ticker.lastChange> client.lastSendTicker)){ %>
+                            <div class="alert alert-danger" role="alert">
+                              The ticker of the client is not up to date!
+                            </div>
+                            <% } %>
+                      </td>
                     <td>
                       <!--<div class="form-group row">
                     <select class="form-control col-md-6 slideshow-select">

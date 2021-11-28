@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/header'); %>
+
+    <title>Tickers</title>
+  </head>
+  <body>
+    <%- include('../partials/navigation', {active:'tickers'}); %>
+
+    <main role="main" class="container">
+      <h1>Tickers</h1>
+      <table id="tickers" class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tickers.forEach(function(ticker) { %>
+            <tr>
+              <td><%= ticker.id %></td>
+              <td><%= ticker.name %></td>
+              <td>
+                <a href="/admin/tickers/edit/<%= ticker.id %>">Edit</a>
+              </td>
+              <td>
+                <button type="button" class="btn btn-danger delete-ticker" data-ticker="<%= ticker.id %>">Delete</button>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
+    <div class="d-flex flex-row-reverse">
+      <a href="/admin/tickers/create"><button type="button" class="btn btn-primary">Create</button></a>
+    </div>
+    </main>
+    <%- include('../partials/footer'); %>
+    <script src="/admin/ticker.js"></script>
+  </body>
+</html>

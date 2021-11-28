@@ -13,7 +13,8 @@ const express = require('express'),
 
 const ClientGroup = require('./models/clientgroup.model'),
     Slideshow = require('./models/slideshow.model'),
-    Slide = require('./models/slide.model');
+    Slide = require('./models/slide.model'),
+    Ticker = require('./models/ticker.model');
 
 const app = express();
 
@@ -48,16 +49,25 @@ wss.on('connection', function connection(ws, req) {
             } else {
                 console.log("Found matching Client Group: ", clientgroup.name);
 
+                
+                let lastSend = new Date();
                 // send saved slideshow
                 if (initial && clientgroup.slideshowId !== null) {
                     console.log("Initially sending of slideshow");
+                    
                     let slideshow = await Slideshow.findByPk(clientgroup.slideshowId, {
                         include: [Slide],
                         order: [[Slide, 'position', 'asc']]
                     });
-                    let lastSend = new Date();
-                    ws.send(JSON.stringify({ "type": "send_url", "slideshow": slideshow, "date": lastSend }));
-                    ws.info.lastSend = lastSend;
+
+                    ws.send(JSON.stringify({ "type": "send_slideshow", "slideshow": slideshow, "date": lastSend }));
+                    ws.info.lastSendSlideshow = lastSend;
+                }
+
+                if(initial && clientgroup.tickerId !== null){
+                    let ticker = await Ticker.findByPk(clientgroup.tickerId);
+                    ws.send(JSON.stringify({ "type": "send_ticker", "ticker": ticker, "date": lastSend }));
+                    ws.info.lastSendTicker = lastSend;
                 }
             }
 
@@ -87,8 +97,9 @@ wss.on('connection', function connection(ws, req) {
         }
 
         // when a connection is restored the client sends the last date of the sended slideshow
-        if (data.type == "get_last_send_result") {
-            ws.info.lastSend = new Date(data.value);
+        if (data.type == "get_last_data") {
+            ws.info.lastSendSlideshow = new Date(data.lastSendSlideshow);
+            ws.info.lastSendTicker = new Date(data.lastSendTicker);
         }
     });
 
@@ -132,6 +143,7 @@ app.use('/css', express.static(path.join(__dirname, 'node_modules/bootstrap/dist
 app.use('/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js')))
 app.use('/js', express.static(path.join(__dirname, 'node_modules/jquery/dist')))
 app.use('/js', express.static(path.join(__dirname, 'node_modules/sortablejs')))
+app.use('/js', express.static(path.join(__dirname, 'node_modules/jquery.marquee')))
 
 // Routes
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -155,4 +167,5 @@ function serverStart() {
 
     db.sync();
     //db.sync({force: true});
+    //db.sync({alter: true});
 }

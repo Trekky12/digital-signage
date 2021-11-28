@@ -35,7 +35,7 @@ sendButtons.forEach(function (button) {
 
 		let data = { "client": client, "group": group, "slideshow": slideshow };
 
-		return fetch("/admin/sendURL", {
+		return fetch("/admin/sendSlideshow", {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
@@ -145,4 +145,43 @@ deleteClientGroupButtons.forEach(function(btn){
 		});        
 
     })
+});
+
+
+const sendTickerButtons = document.querySelectorAll('button.btn-send-ticker');
+sendTickerButtons.forEach(function (button) {
+
+	button.addEventListener('click', function (event) {
+		event.preventDefault();
+
+		let client = button.dataset.client;
+		let group = button.dataset.group;
+		let ticker = button.parentElement.parentElement.querySelector('select.ticker-select').value;
+
+		let data = { "client": client, "group": group, "ticker": ticker };
+
+		return fetch("/admin/sendTicker", {
+			method: 'POST',
+			credentials: "same-origin",
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+		}).then(function (response) {
+			return response.json();
+		}).then(function (data) {
+			if (data == "success") {
+				alert("Ticker successfully send!");
+				window.location.reload();
+			} else {
+				console.log(data);
+				alert(data);
+				window.location.reload();
+			}
+		}).catch(function (error) {
+			console.log(error);
+		});
+	});
+    
 });

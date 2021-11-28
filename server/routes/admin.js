@@ -18,6 +18,7 @@ module.exports = function(wss) {
 
   router.use('/', require('./admin.clients')(wss));
   router.use('/slideshows', require('./admin.slideshows'));
+  router.use('/tickers', require('./admin.tickers'));
 
   return router;
 }

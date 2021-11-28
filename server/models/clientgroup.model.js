@@ -15,7 +15,10 @@ var modelDefinition = {
         unique: true,
         allowNull: false
     },
-    lastSend: {
+    lastSendSlideshow: {
+        type: Sequelize.DATE
+    },
+    lastSendTicker: {
         type: Sequelize.DATE
     }
 };
@@ -24,5 +27,8 @@ var ClientGroupModel = db.define('clientgroup', modelDefinition);
 
 var SlideshowModel = require('./slideshow.model');
 ClientGroupModel.belongsTo(SlideshowModel);
+
+var TickerModel = require('./ticker.model');
+ClientGroupModel.belongsTo(TickerModel);
 
 module.exports = ClientGroupModel;

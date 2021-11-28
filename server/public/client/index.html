@@ -8,10 +8,10 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
 
     <style>
-        #message {
+        #offlineMessage {
             position: absolute;
             right: 20px;
-            bottom: 0;
+            top: 10px;
         }
 
         #navigation {
@@ -40,6 +40,22 @@
         #navigation:hover #navigation-content {
             display: block;
         }
+
+        #ticker {
+            position: absolute;
+            width: 100%;
+            bottom: 2%;
+            background-color: rgba(200, 200, 200, 0.8);
+            display: none;
+
+            height: 15vh;
+            font-size: 15vh;
+            line-height: 15vh;
+
+
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0.5rem;
+        }
     </style>
 </head>
 
@@ -52,8 +68,14 @@
             <button id="nextBtn">Next</button>
         </div>
     </div>
-    <div id="message"></div>
+    <div id="ticker">
+    </div>
+    <div id="offlineMessage">Offline</div>
     <iframe src="" id="content" style="width:100vw; height:100vh; border:none"></iframe>
+
+    <script src="/js/jquery.slim.min.js"></script>
+    <script src="/js/jquery.marquee.min.js"></script>
+
     <script type="text/javascript">
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
@@ -63,20 +85,26 @@
         const hostname = urlParams.has("hostname") ? urlParams.get('hostname') : null;
         const cid = urlParams.has("cid") ? urlParams.get('cid') : null;
 
+        const offlineMessage = document.getElementById("offlineMessage");
+        const ticker = document.getElementById('ticker');
+
         let slides = [];
         let slideIndex = 0;
         let nextSlideIndx;
         let lastSlideshowReceive = null;
+        let lastTickerReceive = null;
         let hearbeatTimeoutIndx;
         let ws_client;
 
         function showSlide() {
             let slide = slides[slideIndex - 1];
 
-            console.log("go to slide");
-            console.log(slide);
-            document.getElementById("content").src = slide.url;
-            nextSlideIndx = setTimeout(showNextSlide, slide.duration * 1000);
+            if (slide) {
+                console.log("go to slide");
+                console.log(slide);
+                document.getElementById("content").src = slide.url;
+                nextSlideIndx = setTimeout(showNextSlide, slide.duration * 1000);
+            }
         }
 
 
@@ -110,10 +138,10 @@
             ws_client = new WebSocket(url);
 
             ws_client.onopen = function () {
-                document.getElementById("message").innerText = "";
+                offlineMessage.innerText = "";
 
-                if (lastSlideshowReceive !== null) {
-                    ws_client.send(JSON.stringify({ "type": "get_last_send_result", "value": lastSlideshowReceive, "slides": slides }));
+                if (!initial) {
+                    ws_client.send(JSON.stringify({ "type": "get_last_data", "lastSendSlideshow": lastSlideshowReceive, "lastSendTicker": lastTickerReceive }));
                 }
                 heartbeat();
             };
@@ -123,7 +151,7 @@
                 var jsonObject = JSON.parse(evt.data);
                 let type = jsonObject.type;
 
-                if (type == "send_url") {
+                if (type == "send_slideshow") {
 
                     if (typeof (nextSlideIndx) !== 'undefined') {
                         clearInterval(nextSlideIndx);
@@ -133,6 +161,26 @@
                     slideIndex = 0;
                     lastSlideshowReceive = jsonObject.date;
                     showNextSlide();
+                }
+
+                if (type == "send_ticker") {
+                    if (jsonObject.ticker) {
+                        ticker.innerHTML = jsonObject.ticker.text;
+                        ticker.style.display = "block";
+                    } else {
+                        ticker.innerHTML = "";
+                        ticker.style.display = "none";
+                    }
+
+                    lastTickerReceive = jsonObject.date;
+
+                    $(ticker).marquee({
+                        speed: 200,
+                        gap: 50,
+                        delayBeforeStart: 0,
+                        direction: 'left',
+                    });
+
                 }
 
                 if (type == "get_url") {
@@ -153,7 +201,7 @@
             ws_client.onclose = function (e) {
                 clearTimeout(hearbeatTimeoutIndx);
                 console.log('Socket is closed. Reconnect will be attempted in 10 seconds.', e.reason);
-                document.getElementById("message").innerText = "Offline";
+                offlineMessage.innerText = "Offline";
                 setTimeout(function () {
                     connect(false);
                 }, 10000);
