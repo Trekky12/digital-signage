@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('./partials/header'); %>
+
+    <title>Help</title>
+  </head>
+  <body>
+    <%- include('./partials/navigation', {active:'help'}); %>
+
+    <main role="main" class="container">
+      <h1>Help</h1>
+
+      <p>A client needs to open the client group in a web browser. Afterwards the client is controlable from the server.</p>
+      <p>The following query parameters can be set:</p>
+      <table class="table">
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>group</code></td>
+                <td>the name of the client group</td>
+            </tr>
+            <tr>
+                <td><code>hostname</code></td>
+                <td>the hostname of the client</td>
+            </tr>
+            <tr>
+                <td><code>cid</code></td>
+                <td>an individual id for the client</td>
+            </tr>
+            <tr>
+                <td><code>server</code></td>
+                <td>the address for the websocket server</td>
+            </tr>
+            <tr>
+                <td><code>port</code></td>
+                <td>the port for the websocket server</td>
+            </tr>
+        </tbody>
+      </table>
+    </main>
+    <%- include('./partials/footer'); %>
+  </body>
+</html>

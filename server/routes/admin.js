@@ -20,5 +20,7 @@ module.exports = function(wss) {
   router.use('/slideshows', require('./admin.slideshows'));
   router.use('/tickers', require('./admin.tickers'));
 
+  router.use('/help', require('./admin.help'));
+
   return router;
 }

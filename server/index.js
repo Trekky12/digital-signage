@@ -50,7 +50,8 @@ wss.on('connection', function connection(ws, req) {
                 console.log("Found matching Client Group: ", clientgroup.name);
 
                 
-                let lastSend = new Date();
+                let currentTime = new Date();
+                ws.info.connectedSince = currentTime;
                 // send saved slideshow
                 if (initial && clientgroup.slideshowId !== null) {
                     console.log("Initially sending of slideshow");
@@ -60,14 +61,14 @@ wss.on('connection', function connection(ws, req) {
                         order: [[Slide, 'position', 'asc']]
                     });
 
-                    ws.send(JSON.stringify({ "type": "send_slideshow", "slideshow": slideshow, "date": lastSend }));
-                    ws.info.lastSendSlideshow = lastSend;
+                    ws.send(JSON.stringify({ "type": "send_slideshow", "slideshow": slideshow, "date": currentTime }));
+                    ws.info.lastSendSlideshow = currentTime;
                 }
 
                 if(initial && clientgroup.tickerId !== null){
                     let ticker = await Ticker.findByPk(clientgroup.tickerId);
-                    ws.send(JSON.stringify({ "type": "send_ticker", "ticker": ticker, "date": lastSend }));
-                    ws.info.lastSendTicker = lastSend;
+                    ws.send(JSON.stringify({ "type": "send_ticker", "ticker": ticker, "date": currentTime }));
+                    ws.info.lastSendTicker = currentTime;
                 }
             }
 

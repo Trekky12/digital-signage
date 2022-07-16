@@ -17,6 +17,7 @@
             <%= clientgroup.name %>
           </h2>
           <p>
+            <small><code><a href="/?group=<%= clientgroup.name %>" target="_blank">/?group=<%= clientgroup.name %></a></code></small><br/>
             <small>Last Save: <%= clientgroup.lastSendSlideshow ? moment(clientgroup.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss'): ""
                 %></small>
           </p>
@@ -63,6 +64,7 @@
                   <th>IP</th>
                   <th>Hostname</th>
                   <th>Client ID</th>
+                  <th>Connected since</th>
                   <th>Slideshow</th>
                   <th></th>
                   <th>Ticker</th>
@@ -81,6 +83,9 @@
                     </td>
                     <td>
                       <%= client.cid %>
+                    </td>
+                    <td>
+                        <%= client.connectedSince ? moment(client.connectedSince).format('DD.MM.YYYY HH:mm:ss') : "" %>
                     </td>
                     <td>
                       <% if (clientgroup.slideshow){ %>
