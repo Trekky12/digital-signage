@@ -35,7 +35,9 @@ wss.on('connection', function connection(ws, req) {
         id: crypto.randomBytes(16).toString("hex"),
         ip: ip,
         hostname: hostname,
-        cid: cid
+        cid: cid,
+        type: "client",
+        isPaused: false
     }
 
     if (type == "client") {
@@ -49,13 +51,13 @@ wss.on('connection', function connection(ws, req) {
             } else {
                 console.log("Found matching Client Group: ", clientgroup.name);
 
-                
+
                 let currentTime = new Date();
                 ws.info.connectedSince = currentTime;
                 // send saved slideshow
                 if (initial && clientgroup.slideshowId !== null) {
                     console.log("Initially sending of slideshow");
-                    
+
                     let slideshow = await Slideshow.findByPk(clientgroup.slideshowId, {
                         include: [Slide],
                         order: [[Slide, 'position', 'asc']]
@@ -65,7 +67,7 @@ wss.on('connection', function connection(ws, req) {
                     ws.info.lastSendSlideshow = currentTime;
                 }
 
-                if(initial && clientgroup.tickerId !== null){
+                if (initial && clientgroup.tickerId !== null) {
                     let ticker = await Ticker.findByPk(clientgroup.tickerId);
                     ws.send(JSON.stringify({ "type": "send_ticker", "ticker": ticker, "date": currentTime }));
                     ws.info.lastSendTicker = currentTime;
@@ -78,8 +80,16 @@ wss.on('connection', function connection(ws, req) {
             ws.info.group = clientgroup.id;
         });
     }
+
+    // Admin connected
     if (type == "admin") {
-        ws.send(JSON.stringify({ "type": "id", "id": ws.id }));
+        // Mark the client as admin
+        ws.info.type = "admin";
+
+        // Send the generated id to the admin client
+        ws.send(JSON.stringify({ "type": "id", "id": ws.info.id }));
+
+        console.log("admin connected!");
     }
 
     ws.on('message', message => {
@@ -101,12 +111,33 @@ wss.on('connection', function connection(ws, req) {
         if (data.type == "get_last_data") {
             ws.info.lastSendSlideshow = new Date(data.lastSendSlideshow);
             ws.info.lastSendTicker = new Date(data.lastSendTicker);
+            ws.info.isPaused = data.isPaused;
+            console.log(data);
+        }
+
+        // client control response
+        if (data.type == "client_ctrl") {
+            // send the information received from the client to all admins to adjust the UI
+            wss.clients.forEach(function (client) {
+                if (client.info.type == "admin") {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ "type": "client_ctrl", "value": data.value, "client": ws.info.id }));
+                    }
+                }
+            });
+
+            if (data.value == "ctrl_pause") {
+                ws.info.isPaused = true;
+            }
+            if (data.value == "ctrl_play") {
+                ws.info.isPaused = false;
+            }
         }
     });
 
     // on pong message set client alive
     ws.isAlive = true;
-    ws.on('pong', function(){
+    ws.on('pong', function () {
         this.isAlive = true;
     });
 });

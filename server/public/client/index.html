@@ -53,7 +53,7 @@
             line-height: 15vh;
 
 
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 0.5rem;
         }
     </style>
@@ -88,6 +88,11 @@
         const offlineMessage = document.getElementById("offlineMessage");
         const ticker = document.getElementById('ticker');
 
+        const pauseBtn = document.getElementById('pauseBtn');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
         let slides = [];
         let slideIndex = 0;
         let nextSlideIndx;
@@ -95,6 +100,7 @@
         let lastTickerReceive = null;
         let hearbeatTimeoutIndx;
         let ws_client;
+        let isPaused = false;
 
         function showSlide() {
             let slide = slides[slideIndex - 1];
@@ -141,7 +147,7 @@
                 offlineMessage.innerText = "";
 
                 if (!initial) {
-                    ws_client.send(JSON.stringify({ "type": "get_last_data", "lastSendSlideshow": lastSlideshowReceive, "lastSendTicker": lastTickerReceive }));
+                    ws_client.send(JSON.stringify({ "type": "get_last_data", "lastSendSlideshow": lastSlideshowReceive, "lastSendTicker": lastTickerReceive, "isPaused": isPaused }));
                 }
                 heartbeat();
             };
@@ -196,6 +202,19 @@
                     console.log("Reloading..");
                     window.location = window.location;
                 }
+
+                if (type == "ctrl_pause") {
+                    slideshowCtrlPause();
+                }
+                if (type == "ctrl_play") {
+                    slideshowCtrlPlay();
+                }
+                if (type == "ctrl_prev") {
+                    slideshowCtrlPrevious();
+                }
+                if (type == "ctrl_next") {
+                    slideshowCtrlNext();
+                }
             };
 
             ws_client.onclose = function (e) {
@@ -222,22 +241,38 @@
 
         connect(true);
 
-        const pauseBtn = document.getElementById('pauseBtn');
-        const playBtn = document.getElementById('playBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
         pauseBtn.addEventListener('click', function (e) {
             e.preventDefault();
+            slideshowCtrlPause();
+        });
+
+        playBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            slideshowCtrlPlay();
+        });
+
+        prevBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            slideshowCtrlPrevious();
+        });
+        nextBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            slideshowCtrlNext();
+        });
+
+        function slideshowCtrlPause() {
             playBtn.style.display = "inline-block";
             pauseBtn.style.display = "none";
 
             console.log("Pause slideshow");
             clearTimeout(nextSlideIndx);
-        });
 
-        playBtn.addEventListener('click', function (e) {
-            e.preventDefault();
+            ws_client.send(JSON.stringify({ "type": "client_ctrl", "value": "ctrl_pause" }));
+
+            isPaused = true;
+        }
+
+        function slideshowCtrlPlay() {
             playBtn.style.display = "none";
             pauseBtn.style.display = "inline-block";
 
@@ -246,22 +281,33 @@
             console.log("Play Slideshow");
             clearTimeout(nextSlideIndx);
             nextSlideIndx = setTimeout(showNextSlide, slide.duration * 1000);
-        });
 
-        prevBtn.addEventListener('click', function (e) {
-            e.preventDefault();
+            ws_client.send(JSON.stringify({ "type": "client_ctrl", "value": "ctrl_play" }));
+
+            isPaused = false;
+        }
+
+        function slideshowCtrlPrevious() {
             playBtn.style.display = "none";
             pauseBtn.style.display = "inline-block";
             clearTimeout(nextSlideIndx);
+
+            console.log("Show previous slide");
             showPreviousSlide();
-        });
-        nextBtn.addEventListener('click', function (e) {
-            e.preventDefault();
+
+            ws_client.send(JSON.stringify({ "type": "client_ctrl", "value": "ctrl_prev" }));
+        }
+
+        function slideshowCtrlNext() {
             playBtn.style.display = "none";
             pauseBtn.style.display = "inline-block";
             clearTimeout(nextSlideIndx);
+
+            console.log("Show next slide");
             showNextSlide();
-        });
+
+            ws_client.send(JSON.stringify({ "type": "client_ctrl", "value": "ctrl_next" }));
+        }
     </script>
 </body>
 

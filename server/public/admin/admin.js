@@ -11,11 +11,30 @@ let myWSClientID = null;
 
 ws.onmessage = function (evt) {
 	var jsonObject = JSON.parse(evt.data);
+
 	if (jsonObject.type == "id") {
 		myWSClientID = jsonObject.id;
 	}
 	if (jsonObject.type == "get_url_result") {
 		alert(jsonObject.value);
+	}
+
+	if (jsonObject.type == "client_ctrl") {
+		let client_id = jsonObject.client;
+		let clientRow = document.querySelector('tr[data-id="' + client_id + '"]');
+		if (clientRow) {
+			let pauseBtn = clientRow.querySelector('button.btn-ctrl[data-type="ctrl_pause"]');
+			let playBtn = clientRow.querySelector('button.btn-ctrl[data-type="ctrl_play"]');
+
+			if (jsonObject.value == "ctrl_pause") {
+				playBtn.style.display = "inline-block";
+				pauseBtn.style.display = "none";
+			}
+			if (jsonObject.value == "ctrl_play") {
+				playBtn.style.display = "none";
+				pauseBtn.style.display = "inline-block";
+			}
+		}
 	}
 };
 
@@ -68,9 +87,9 @@ getButtons.forEach(function (button) {
 
 		let client = button.dataset.client;
 
-		let data = { "client": client, "admin": myWSClientID };
+		let data = { "client": client, "admin": myWSClientID, "type": "get_url" };
 
-		return fetch("/admin/getURL", {
+		return fetch("/admin/control", {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
@@ -95,9 +114,9 @@ reloadButtons.forEach(function (button) {
 
 		let client = button.dataset.client;
 
-		let data = { "client": client, "admin": myWSClientID };
+		let data = { "client": client, "admin": myWSClientID, "type": "reload" };
 
-		return fetch("/admin/reload", {
+		return fetch("/admin/control", {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
@@ -108,8 +127,8 @@ reloadButtons.forEach(function (button) {
 		}).then(function (response) {
 			return response.json();
 		}).then(function (data) {
-            alert(data);
-            window.location.reload();
+			alert(data);
+			window.location.reload();
 		}).catch(function (error) {
 			console.log(error);
 		});
@@ -117,19 +136,19 @@ reloadButtons.forEach(function (button) {
 });
 
 const deleteClientGroupButtons = document.querySelectorAll('button.delete-group');
-deleteClientGroupButtons.forEach(function(btn){
+deleteClientGroupButtons.forEach(function (btn) {
 
-    btn.addEventListener('click', function(event){
-        event.preventDefault();
+	btn.addEventListener('click', function (event) {
+		event.preventDefault();
 
-        if(!confirm("Really delete?")){
-            return;
-        }
-        
-        let clientgroup_id = btn.dataset.group;
-        console.log(clientgroup_id);
+		if (!confirm("Really delete?")) {
+			return;
+		}
 
-        return fetch("/admin/group/delete/"+clientgroup_id, {
+		let clientgroup_id = btn.dataset.group;
+		console.log(clientgroup_id);
+
+		return fetch("/admin/group/delete/" + clientgroup_id, {
 			method: 'GET'
 		}).then(function (response) {
 			return response.json();
@@ -142,9 +161,9 @@ deleteClientGroupButtons.forEach(function(btn){
 			}
 		}).catch(function (error) {
 			console.log(error);
-		});        
+		});
 
-    })
+	})
 });
 
 
@@ -183,5 +202,34 @@ sendTickerButtons.forEach(function (button) {
 			console.log(error);
 		});
 	});
-    
+
+});
+
+const ctrlButtons = document.querySelectorAll('button.btn-ctrl');
+ctrlButtons.forEach(function (button) {
+
+	button.addEventListener('click', function (event) {
+		event.preventDefault();
+
+		let client = button.dataset.client;
+		let type = button.dataset.type;
+
+		let data = { "client": client, "admin": myWSClientID, "type": type };
+
+		return fetch("/admin/control", {
+			method: 'POST',
+			credentials: "same-origin",
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(data)
+		}).then(function (response) {
+			return response.json();
+		}).then(function (data) {
+			alert(data);
+		}).catch(function (error) {
+			console.log(error);
+		});
+	});
 });

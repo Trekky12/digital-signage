@@ -17,9 +17,9 @@
             <%= clientgroup.name %>
           </h2>
           <p>
-            <small><code><a href="/?group=<%= clientgroup.name %>" target="_blank">/?group=<%= clientgroup.name %></a></code></small><br/>
-            <small>Last Save: <%= clientgroup.lastSendSlideshow ? moment(clientgroup.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss'): ""
-                %></small>
+            <small><code><a href="/?group=<%= clientgroup.name %>" target="_blank">/?group=<%= clientgroup.name %></a></code></small><br />
+            <small>Last Save: <%= clientgroup.lastSendSlideshow ?
+                moment(clientgroup.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss'): "" %></small>
           </p>
           <div class="row">
             <div class="form-group col-9">
@@ -40,7 +40,7 @@
           <div class="row">
             <div class="form-group col-9">
               <select class="form-control ticker-select">
-                  <option value="" <% if(clientgroup.tickerId){ %>selected="selected"<% } %>>- None - </option>
+                <option value="" <% if(clientgroup.tickerId){ %>selected="selected"<% } %>>- None - </option>
                 <% tickers.forEach(function(ticker) { %>
                   <option value="<%= ticker.id %>" <% if(clientgroup.tickerId==ticker.id){ %>
                     selected="selected"<% } %>><%= ticker.name %>
@@ -49,7 +49,8 @@
               </select>
             </div>
             <div class="form-group col-3">
-              <button type="button" class="btn btn-primary btn-send-ticker float-right" data-group="<%= clientgroup.id %>">Save
+              <button type="button" class="btn btn-primary btn-send-ticker float-right"
+                data-group="<%= clientgroup.id %>">Save
                 & Send</button>
             </div>
           </div>
@@ -70,11 +71,12 @@
                   <th>Ticker</th>
                   <th></th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 <% clientgroup.clients.forEach(function(client) { %>
-                  <tr>
+                  <tr data-id="<%= client.id %>">
                     <td>
                       <%= client.ip %>
                     </td>
@@ -85,57 +87,72 @@
                       <%= client.cid %>
                     </td>
                     <td>
-                        <%= client.connectedSince ? moment(client.connectedSince).format('DD.MM.YYYY HH:mm:ss') : "" %>
+                      <%= client.connectedSince ? moment(client.connectedSince).format('DD.MM.YYYY HH:mm:ss') : "" %>
                     </td>
                     <td>
                       <% if (clientgroup.slideshow){ %>
                         <%=clientgroup.slideshow.name %> <br>
-                          <small>Last Change: <%= moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %></small><br>
-                          <small>Last Send:  <%= client.lastSendSlideshow ? moment(client.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss') : "" %> </small><br><br>
-                      <% } %>
-                      <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange> client.lastSendSlideshow)){ %>
-                        <div class="alert alert-danger" role="alert">
-                          The slideshow of the client is not up to date!
-                        </div>
-                        <% } %>
+                          <small>
+                            Last Change: <%= moment(clientgroup.slideshow.lastChange).format('DD.MM.YYYY HH:mm:ss') %>
+                          </small>
+                          <br>
+                          <small>
+                            Last Send: <%= client.lastSendSlideshow ?
+                              moment(client.lastSendSlideshow).format('DD.MM.YYYY HH:mm:ss') : "" %>
+                          </small>
+                          <br><br>
+                          <% } %>
+                            <% if (clientgroup.slideshow && (clientgroup.slideshow.lastChange>
+                              client.lastSendSlideshow)){ %>
+                              <div class="alert alert-danger" role="alert">
+                                The slideshow of the client is not up to date!
+                              </div>
+                              <% } %>
                     </td>
                     <td>
-                      
+
                     </td>
                     <td>
-                        <% if (clientgroup.ticker){ %>
-                          <%=clientgroup.ticker.name %> <br>
-                            <small>Last Change: <%= moment(clientgroup.ticker.lastChange).format('DD.MM.YYYY HH:mm:ss') %></small><br>
-                            <small>Last Send:  <%= client.lastSendTicker ? moment(client.lastSendTicker).format('DD.MM.YYYY HH:mm:ss') : "" %></small> <br><br>
-                        <% } %>
-                        <% if (clientgroup.ticker && (clientgroup.ticker.lastChange> client.lastSendTicker)){ %>
-                            <div class="alert alert-danger" role="alert">
-                              The ticker of the client is not up to date!
-                            </div>
-                            <% } %>
-                      </td>
+                      <% if (clientgroup.ticker){ %>
+                        <%=clientgroup.ticker.name %> <br>
+                          <small>Last Change:
+                            <%= moment(clientgroup.ticker.lastChange).format('DD.MM.YYYY HH:mm:ss') %>
+                          </small>
+                          <br>
+                          <small>Last Send:
+                            <%= client.lastSendTicker ? moment(client.lastSendTicker).format('DD.MM.YYYY HH:mm:ss') : ""
+                              %>
+                          </small>
+                          <br><br>
+                          <% } %>
+                            <% if (clientgroup.ticker && (clientgroup.ticker.lastChange> client.lastSendTicker)){ %>
+                              <div class="alert alert-danger" role="alert">
+                                The ticker of the client is not up to date!
+                              </div>
+                              <% } %>
+                    </td>
                     <td>
-                      <!--<div class="form-group row">
-                    <select class="form-control col-md-6 slideshow-select">
-                      <% slideshows.forEach(function(slideshow) { %>
-                        <option value="<%= slideshow.id %>" <% if(clientgroup.slideshowId==slideshow.id){ %>
-                          selected="selected"<% } %>><%= slideshow.name %>
-                        </option>
-                        <% }); %>
-                    </select>
-                    <button type="button" class="btn btn-primary offset-md-1 col-md-2 btn-send"
-                      data-client="<%= client.id %>">Send Slideshow</button>
-                  
-                    <button type="button" class="btn btn-secondary offset-md-1 col-md-2 btn-get"
-                      data-client="<%= client.id %>">Get Current URL</button>
-                      -->
                       <button type="button" class="btn btn-secondary float-right btn-get"
-                        data-client="<%= client.id %>">Get
-                        Current URL</button>
-                        </td>
-                        <td>
-                        <button type="button" class="btn btn-secondary float-right btn-reload"
+                        data-client="<%= client.id %>">
+                        Get Current URL
+                      </button>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-secondary float-right btn-reload"
                         data-client="<%= client.id %>">Reload Client</button>
+                    </td>
+                    <td>
+
+                      <div class="form-group">
+                        <button type="button" class="btn btn-secondary btn-ctrl" data-client="<%= client.id %>"
+                          data-type="ctrl_prev">Prev</button>
+                        <button type="button" class="btn btn-secondary btn-ctrl" data-client="<%= client.id %>"
+                          data-type="ctrl_pause" <% if (client.isPaused){ %>style="display: none;"<% } %>>Pause</button>
+                        <button type="button" class="btn btn-secondary btn-ctrl" data-client="<%= client.id %>"
+                          data-type="ctrl_play" <% if (!client.isPaused){ %>style="display: none;"<% } %>>Play</button>
+                        <button type="button" class="btn btn-secondary btn-ctrl" data-client="<%= client.id %>"
+                          data-type="ctrl_next">Next</button>
+                      </div>
                     </td>
                   </tr>
                   <% }); %>
