@@ -99,7 +99,7 @@ wss.on('connection', function connection(ws, req) {
         if (data.type == "get_url_result") {
             // send the retrieved url to the admin which requested it
             wss.clients.forEach(function (client) {
-                if (client.id == data.admin) {
+                if (client.info.id == data.admin) {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({ "type": "get_url_result", "value": data.value }));
                     }
