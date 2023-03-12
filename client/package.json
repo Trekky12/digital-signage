@@ -17,11 +17,9 @@
   },
   "homepage": "https://www.haegi.org",
   "license": "MIT",
-  "dependencies": {
-    "electron": "^10.1.5"
-  },
   "devDependencies": {
-    "electron-builder": "^22.9.1"
+    "electron": "^22.2.0",
+    "electron-builder": "^23.6.0"
   },
   "build": {
     "appId": "infoscreen.client",

@@ -2,5 +2,7 @@
 	"url": "https://www.google.com",
 	"cid": "test",
 	"group": "monitor1",
-	"debug": false
+	"debug": false,
+	"displayID": 0,
+	"ignore-certificate-errors": false
 }
