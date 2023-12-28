@@ -1,14 +1,14 @@
-'use strict'; 
+'use strict';
 
 var Sequelize = require('sequelize');
 
 var db = require('../services/database');
 
 var modelDefinition = {
-	id: {
-            type: Sequelize.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
     name: {
         type: Sequelize.STRING,
@@ -39,6 +39,11 @@ var modelDefinition = {
         defaultValue: 0,
         allowNull: true
     },
+    backgroundColor: {
+        type: Sequelize.STRING,
+        defaultValue: "#FFFFFF",
+        allowNull: true
+    },
 };
 
 var SlideshowModel = db.define('slideshow', modelDefinition);
@@ -47,10 +52,10 @@ var SlideshowModel = db.define('slideshow', modelDefinition);
  * 1:n relationship between slideshow and slide
  */
 var Slide = require('./slide.model');
-SlideshowModel.hasMany(Slide, { 
-    onDelete: 'cascade', 
-    foreignKey: { 
-        allowNull: false 
+SlideshowModel.hasMany(Slide, {
+    onDelete: 'cascade',
+    foreignKey: {
+        allowNull: false
     },
     hooks: true
 });

@@ -27,6 +27,7 @@ router.post('/create', async function (req, res) {
     let marginRight = req.body.marginRight ? req.body.marginRight : 0;
     let marginBottom = req.body.marginBottom ? req.body.marginBottom : 0;
     let marginLeft = req.body.marginLeft ? req.body.marginLeft : 0;
+    let backgroundColor = req.body.backgroundColor ? req.body.backgroundColor : "#FFFFFF";
 
     // Create the slideshow
     const slideshow = await Slideshow.create({
@@ -35,6 +36,7 @@ router.post('/create', async function (req, res) {
         marginRight: marginRight,
         marginBottom: marginBottom,
         marginLeft: marginLeft,
+        backgroundColor: backgroundColor,
     });
 
     // save the slides
@@ -76,6 +78,7 @@ router.post('/edit/:id', async function (req, res) {
     let marginRight = req.body.marginRight ? req.body.marginRight : 0;
     let marginBottom = req.body.marginBottom ? req.body.marginBottom : 0;
     let marginLeft = req.body.marginLeft ? req.body.marginLeft : 0;
+    let backgroundColor = req.body.backgroundColor ? req.body.backgroundColor : "#FFFFFF";
 
     const slideshow = await Slideshow.findByPk(slideshowID);
     if (slideshow !== null) {
@@ -85,6 +88,7 @@ router.post('/edit/:id', async function (req, res) {
             marginRight: marginRight,
             marginBottom: marginBottom,
             marginLeft: marginLeft,
+            backgroundColor: backgroundColor,
             lastChange: new Date()
         })
     }

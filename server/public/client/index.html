@@ -198,6 +198,15 @@
                         margin_w = margin_w + jsonObject.slideshow.marginLeft;
                     }
 
+                    if (jsonObject.slideshow.backgroundColor) {
+                        document.querySelector('body').style.backgroundColor = jsonObject.slideshow.backgroundColor;
+
+                        // Style scrollbar
+                        let styleElement = document.createElement("style");
+                        styleElement.appendChild(document.createTextNode("::-webkit-scrollbar {background: " + jsonObject.slideshow.backgroundColor + "} ::-webkit-scrollbar-corner {background: " + jsonObject.slideshow.backgroundColor + "}"));
+                        document.getElementsByTagName("head")[0].appendChild(styleElement);
+                    }
+
                     let iframe = document.querySelector('iframe#content');
                     iframe.style.width = 'calc(100vw - ' + margin_w + 'px)';
                     iframe.style.height = 'calc(100vh - ' + margin_h + 'px)';
