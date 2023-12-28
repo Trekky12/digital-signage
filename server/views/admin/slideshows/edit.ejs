@@ -20,6 +20,34 @@
           <input type="text" class="form-control" id="exampleFormControlInput1" name="name"
             value="<% if(locals.entry){ %><%= entry.name %><% } %>">
         </div>
+
+        <div class="form-group">
+          <h4>Margins [px]</h4>
+
+          <div class="row">
+            <div class="col">
+              <label for="marginTopInput">top</label>
+              <input type="text" class="form-control" id="marginTopInput" name="marginTop"
+                value="<% if(locals.entry){ %><%= entry.marginTop %><% } %>">
+            </div>
+            <div class="col">
+              <label for="marginRightInput">right</label>
+              <input type="text" class="form-control" id="marginRightInput" name="marginRight"
+                value="<% if(locals.entry){ %><%= entry.marginRight %><% } %>">
+            </div>
+            <div class="col">
+              <label for="marginBottomInput">bottom</label>
+              <input type="text" class="form-control" id="marginBottomInput" name="marginBottom"
+                value="<% if(locals.entry){ %><%= entry.marginBottom %><% } %>">
+            </div>
+            <div class="col">
+              <label for="marginLeftInput">left</label>
+              <input type="text" class="form-control" id="marginLeftInput" name="marginLeft"
+                value="<% if(locals.entry){ %><%= entry.marginLeft %><% } %>">
+            </div>
+          </div>
+        </div>
+
         <h4>Slides</h4>
         <div class="d-flex flex-row-reverse">
           <button type="button" class="btn btn-secondary" id="addSlide">Add Slide</button>

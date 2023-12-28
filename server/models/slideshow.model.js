@@ -18,7 +18,27 @@ var modelDefinition = {
     lastChange: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
-    }
+    },
+    marginTop: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
+    marginRight: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
+    marginBottom: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
+    marginLeft: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: true
+    },
 };
 
 var SlideshowModel = db.define('slideshow', modelDefinition);

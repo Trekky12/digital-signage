@@ -23,10 +23,18 @@ router.get('/create', function (req, res) {
 
 router.post('/create', async function (req, res) {
     let name = req.body.name;
+    let marginTop = req.body.marginTop ? req.body.marginTop : 0;
+    let marginRight = req.body.marginRight ? req.body.marginRight : 0;
+    let marginBottom = req.body.marginBottom ? req.body.marginBottom : 0;
+    let marginLeft = req.body.marginLeft ? req.body.marginLeft : 0;
 
     // Create the slideshow
     const slideshow = await Slideshow.create({
-        name: name
+        name: name,
+        marginTop: marginTop,
+        marginRight: marginRight,
+        marginBottom: marginBottom,
+        marginLeft: marginLeft,
     });
 
     // save the slides
@@ -64,10 +72,19 @@ router.post('/edit/:id', async function (req, res) {
 
     // save the slideshow
     let name = req.body.name;
+    let marginTop = req.body.marginTop ? req.body.marginTop : 0;
+    let marginRight = req.body.marginRight ? req.body.marginRight : 0;
+    let marginBottom = req.body.marginBottom ? req.body.marginBottom : 0;
+    let marginLeft = req.body.marginLeft ? req.body.marginLeft : 0;
+
     const slideshow = await Slideshow.findByPk(slideshowID);
     if (slideshow !== null) {
         await slideshow.update({
             name: name,
+            marginTop: marginTop,
+            marginRight: marginRight,
+            marginBottom: marginBottom,
+            marginLeft: marginLeft,
             lastChange: new Date()
         })
     }

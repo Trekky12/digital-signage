@@ -8,6 +8,16 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
 
     <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
         #offlineMessage {
             position: absolute;
             right: 20px;
@@ -56,10 +66,16 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 0.5rem;
         }
+
+        iframe#content {
+            width: 100vw;
+            height: 100vh;
+            border: none
+        }
     </style>
 </head>
 
-<body style="overflow:hidden; margin:0; padding:0;">
+<body>
     <div id="navigation">
         <div id="navigation-content">
             <button id="prevBtn">Prev</button>
@@ -71,7 +87,7 @@
     <div id="ticker">
     </div>
     <div id="offlineMessage">Offline</div>
-    <iframe src="" id="content" style="width:100vw; height:100vh; border:none"></iframe>
+    <iframe src="" id="content"></iframe>
 
     <script src="/js/jquery.slim.min.js"></script>
     <script src="/js/jquery.marquee.min.js"></script>
@@ -162,6 +178,29 @@
                     if (typeof (nextSlideIndx) !== 'undefined') {
                         clearInterval(nextSlideIndx);
                     }
+
+                    let margin_h = 0;
+                    let margin_w = 0;
+                    if (jsonObject.slideshow.marginTop) {
+                        document.querySelector('body').style.marginTop = jsonObject.slideshow.marginTop + "px";
+                        margin_h = margin_h + jsonObject.slideshow.marginTop;
+                    }
+                    if (jsonObject.slideshow.marginRight) {
+                        document.querySelector('body').style.marginRight = jsonObject.slideshow.marginRight + "px";
+                        margin_w = margin_w + jsonObject.slideshow.marginRight;
+                    }
+                    if (jsonObject.slideshow.marginBottom) {
+                        document.querySelector('body').style.marginBottom = jsonObject.slideshow.marginBottom + "px";
+                        margin_h = margin_h + jsonObject.slideshow.marginBottom;
+                    }
+                    if (jsonObject.slideshow.marginLeft) {
+                        document.querySelector('body').style.marginLeft = jsonObject.slideshow.marginLeft + "px";
+                        margin_w = margin_w + jsonObject.slideshow.marginLeft;
+                    }
+
+                    let iframe = document.querySelector('iframe#content');
+                    iframe.style.width = 'calc(100vw - ' + margin_w + 'px)';
+                    iframe.style.height = 'calc(100vh - ' + margin_h + 'px)';
 
                     slides = jsonObject.slideshow.slides;
                     slideIndex = 0;
