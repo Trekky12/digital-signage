@@ -36,6 +36,17 @@ ws.onmessage = function (evt) {
 			}
 		}
 	}
+
+	if (jsonObject.type == "client_info") {
+
+		if (jsonObject.value == "connect") {
+			window.location.reload();
+		}
+		if (jsonObject.value == "disconnect") {
+			window.location.reload();
+		}
+		//console.log(jsonObject.client);
+	}
 };
 
 ws.onerror = function (err) {

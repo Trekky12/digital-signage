@@ -19,6 +19,44 @@ module.exports = function (wss) {
 
         const slideshows = await Slideshow.findAll();
         const tickers = await Ticker.findAll();
+        const clientGroups = await ClientGroup.findAll();
+
+        clientGroups.forEach(function (clientgroup) {
+            
+            let connectedClients = wss_clients.filter(function (item) {
+                if (item.group === clientgroup.id) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            clientgroup.clients = connectedClients;
+            //clientgroup.clients = [];
+
+            slideshows.forEach(function (slideshow) {
+                if (clientgroup.slideshowId == slideshow.id) {
+                    clientgroup.slideshow = slideshow;
+                }
+            });
+
+            tickers.forEach(function (ticker) {
+                if (clientgroup.tickerId == ticker.id) {
+                    clientgroup.ticker = ticker;
+                }
+            });
+        });
+
+        return res.render('admin/clients/index', { clientgroups: clientGroups, slideshows: slideshows, tickers: tickers, moment: moment })
+    });
+
+    router.get('/clients', async function (req, res) {
+        const wss_clients = []
+        wss.clients.forEach(function (client) {
+            wss_clients.push(client.info);
+        });
+
+        const slideshows = await Slideshow.findAll();
+        const tickers = await Ticker.findAll();
 
         const clientGroups = await ClientGroup.findAll();
         clientGroups.forEach(function (clientgroup) {
@@ -46,7 +84,7 @@ module.exports = function (wss) {
 
         });
 
-        return res.render('admin/clients/index', { clientgroups: clientGroups, slideshows: slideshows, tickers: tickers, moment: moment })
+        return res.json(wss_clients);
     });
 
 

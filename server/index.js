@@ -78,6 +78,15 @@ wss.on('connection', function connection(ws, req) {
             console.log("client connected!");
 
             ws.info.group = clientgroup.id;
+
+            // send the information that a new client is connected to all admins to adjust the UI
+            wss.clients.forEach(function (client) {
+                if (client.info.type == "admin") {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ "type": "client_info", "value": "connect", "client": ws.info }));
+                    }
+                }
+            });
         });
     }
 
@@ -140,12 +149,30 @@ wss.on('connection', function connection(ws, req) {
     ws.on('pong', function () {
         this.isAlive = true;
     });
+
+
+    ws.on('close', function () {
+        console.log("Client disconnected gracefully");
+
+        // send the information that a new client is connected to all admins to adjust the UI
+        wss.clients.forEach(function (client) {
+            if (client.info.type == "admin") {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ "type": "client_info", "value": "disconnect", "client": ws.info }));
+                }
+            }
+        });
+    });
 });
 
 // regulary send pings to clients
 const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
-        if (ws.isAlive === false) return ws.terminate();
+        if (ws.isAlive === false){
+            ws.terminate();
+            console.log("Client disconnected because of timeout!");
+            return;
+        }
 
         ws.isAlive = false;
         // automatic handling
